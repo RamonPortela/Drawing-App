@@ -1,6 +1,6 @@
 var canvas = document.getElementById("drawing-canvas");
 var context = canvas.getContext("2d");
-var socket = io('http://localhost');
+var socket = io('http://127.0.0.1:8080/');
 
 socket.on('draw', function(data){
     var newLine = data.line;
