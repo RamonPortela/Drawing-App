@@ -1,0 +1,27 @@
+{
+  "name": "app-drawing",
+  "version": "0.0.1",
+  "description": "Online drawing pane",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RamonPortela/Drawing-App.git"
+  },
+  "keywords": [
+    "drawing",
+    "online"
+  ],
+  "author": "Ramon Portela Santos",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RamonPortela/Drawing-App/issues"
+  },
+  "homepage": "https://github.com/RamonPortela/Drawing-App#readme",
+  "dependencies": {
+    "express": "^4.16.1",
+    "socket.io": "^2.0.3"
+  }
+}
