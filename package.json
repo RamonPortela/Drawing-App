@@ -1,10 +1,11 @@
 {
-  "name": "app-drawing",
+  "name": "drawingapp",
   "version": "0.0.1",
   "description": "Online drawing pane",
   "main": "index.js",
   "scripts": {
-    "test": "npm run test"
+    "test": "npm run test",
+    "start": "node ./server/index.js"
   },
   "repository": {
     "type": "git",
