@@ -71,7 +71,7 @@ var setLine = function(){
 
 canvas.onmousedown = function(e){
     setMouse(e.layerX, e.layerY);
-    draw(true);
+    draw(true, false);
     mouse.click = true;
 };
 
@@ -79,7 +79,7 @@ canvas.onmousemove = function(e){
 
     if(mouse.click){
         setMouse(e.layerX, e.layerY);
-        draw();
+        draw(false, false);
     }
 }
 
