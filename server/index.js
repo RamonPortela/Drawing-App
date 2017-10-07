@@ -14,9 +14,7 @@ server.listen(server_port, server_ip_address, function(){
   });
 
 io.on('connection', function(socket){
-    console.log('connected');
     socket.on('draw', function(data){
-        console.log(data.line);
-        io.emit('draw', {line: data.line});
+        io.emit('draw', data);
     })
 });
