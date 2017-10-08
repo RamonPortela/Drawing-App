@@ -4,8 +4,20 @@
         <link rel="stylesheet" href="./src/css/styles.css">
     </head>
     <body>
-        <canvas id="drawing-canvas" width='800' height='600'></canvas>
+        <div>
+            <button id="btn-limpar">Limpar</button>
+        </div>
+        <div>
+            <canvas id="drawing-canvas" width='800' height='600'></canvas>
+        </div>
+        <div>
+            <input type="color" name="" id="color-input"/>
+            <button id="pincel">Pincel</button>
+            <button id="borracha">Borracha</button>
+        </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+        <script src="./src/js/socket.js"></script>
         <script src="./src/js/drawing.js"></script>
+        <script src="./src/js/mobile.js"></script>
     </body>
 </html>

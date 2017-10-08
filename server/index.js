@@ -16,5 +16,13 @@ server.listen(server_port, server_ip_address, function(){
 io.on('connection', function(socket){
     socket.on('draw', function(data){
         io.emit('draw', data);
-    })
+    });
+
+    socket.on('erase', function(data){
+        io.emit('erase', data);
+    });
+
+    socket.on('clear', function(){
+        io.emit('clear');
+    });
 });

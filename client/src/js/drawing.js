@@ -1,34 +1,21 @@
 var canvas = document.getElementById("drawing-canvas");
 var context = canvas.getContext("2d");
-var socket = io();
+var colorInput = document.getElementById("color-input");
+var btnLimpar = document.getElementById("btn-limpar");
+var btnPincel = document.getElementById("pincel");
+var btnBorracha = document.getElementById("borracha");
 
 var mouseLocal = {
     click: false,
     previousX: 0,
     previousY: 0,
     currentX: 0,
-    currentY: 0
+    currentY: 0,
+    pincel: "pincel"
 }
 var pathArray = [];
 var mousesOnline = [];
-
-socket.on('draw', function(data){
-    
-    if(data.id == socket.id){
-        return;
-    }
-    else{
-
-        console.log(data.path);
-
-        context.beginPath();
-        context.moveTo(data.path[0].x, data.path[0].y)
-        for(var i = 1; i < data.path.length; i++){
-            context.lineTo(data.path[i].x, data.path[i].y);
-        }
-        context.stroke();
-    }
-})
+var inicioClick = 0;
 
 var line = {
     color: "black",
@@ -38,12 +25,26 @@ var line = {
 var draw = function(firstClick){
     setLine();
     context.beginPath();
-    if(!firstClick){
-        context.moveTo(mouseLocal.previousX, mouseLocal.previousY);
+
+    switch(mouseLocal.pincel){
+        case "pincel":
+            context.globalCompositeOperation="source-over";
+            if(!firstClick){
+                context.moveTo(mouseLocal.previousX, mouseLocal.previousY);
+            }
+            context.lineTo(mouseLocal.currentX, mouseLocal.currentY);
+            context.stroke();
+            break;
+        case "borracha":
+            context.lineWidth = line.size * 5;
+            context.globalCompositeOperation="destination-out";
+            if(!firstClick){
+                context.moveTo(mouseLocal.previousX, mouseLocal.previousY);
+            }
+            context.lineTo(mouseLocal.currentX, mouseLocal.currentY);
+            context.stroke();
+            break;
     }
-    context.lineTo(mouseLocal.currentX, mouseLocal.currentY);
-    context.closePath();
-    context.stroke();
 }
 
 var setMouse = function(x, y){
@@ -68,44 +69,86 @@ var setLine = function(newSetup){
     }
 }
 
+
+
+colorInput.onchange = function(e){
+    line.color = colorInput.value;
+}
+
+btnLimpar.onclick = function(e){
+    socket.emit("clear");
+}
+
+btnBorracha.onclick = function(e){
+    mouseLocal.pincel = "borracha";
+}
+
+btnPincel.onclick = function(e){
+    mouseLocal.pincel = "pincel";
+}
+
 canvas.onmousedown = function(e){
+    e.preventDefault();
     if(e.buttons > 1){
         return;
     }
-    setMouse(e.layerX, e.layerY);
+    setMouse(e.clientX, e.clientY);
     draw(true);
-    socket.emit("draw", {path: pathArray, id: socket.id});
+    pathArray.push({x: mouseLocal.currentX, y: mouseLocal.currentY});
+    switch(mouseLocal.pincel){
+        case "pincel":
+            emitDraw();
+            break;
+        case "borracha":
+            emitBorracha();
+            break;
+    }
     mouseLocal.click = true;
 };
 
 canvas.onmousemove = function(e){
     if(mouseLocal.click){
-        setMouse(e.layerX, e.layerY);
+        setMouse(e.clientX, e.clientY);
         draw(false);
         pathArray.push({x: mouseLocal.currentX, y: mouseLocal.currentY});
         if(pathArray.length == 100){
-            socket.emit("draw", {path: pathArray, id: socket.id});
-            //console.log(pathArray);
+            switch(mouseLocal.pincel){
+                case "pincel":
+                    emitDraw();
+                    break;
+                case "borracha":
+                    emitBorracha();
+                    break;
+            }
             pathArray = pathArray.slice(99);
-            //console.log(pathArray);
         }
     }
 }
 
 canvas.onmouseup = function(e){
     mouseLocal.click = false;
-    console.log(pathArray);
-    socket.emit("draw", {path: pathArray, id: socket.id});
+    switch(mouseLocal.pincel){
+        case "pincel":
+            emitDraw();
+            break;
+        case "borracha":
+            emitBorracha();
+            break;
+    }
     pathArray = [];
 }
 
 canvas.onmouseout = function(e){
     mouseLocal.click = false;
-    console.log(pathArray);
     if(pathArray.length > 0){
-        socket.emit("draw", {path: pathArray, id: socket.id});
+        switch(mouseLocal.pincel){
+            case "pincel":
+                emitDraw();
+                break;
+            case "borracha":
+                emitBorracha();
+                break;
+        }
         pathArray = [];
     }
 }
-
-console.log(canvas);
