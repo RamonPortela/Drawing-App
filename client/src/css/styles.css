@@ -1,5 +1,81 @@
+body{
+    color: #eeca03;
+    background-color: #252525;
+}
+
+.container{
+    flex-direction: column;
+    margin: auto;
+    width: 70%;
+}
+
 #drawing-canvas{
     display: block;
-    border: 1px solid black;
     cursor: crosshair;
+}
+
+#canvas-div{
+    background-color: white;
+    margin-right: 5px;
+}
+
+#ferramentas-div{
+    background-color: #363636;
+}
+
+#color-input{
+    display: none;
+}
+
+#color-div{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.icon{
+    font-size: 35px;
+    color: #eeca03;
+    cursor: pointer;
+}
+
+[class*="icon-"]{
+    position: relative;
+    left: 3px;
+}
+
+.flex{
+    display: flex;
+}
+
+.header{
+    height: 150px;
+    background-image: url("../../src/img/header.png");
+    background-repeat: no-repeat;
+    background-size: 350px 175px;
+}
+
+.content{
+    width: 100%;
+}
+
+.ferramentas{
+    flex-direction: column;
+}
+
+.ferramenta{
+    padding: 15px 10px;
+}
+
+.ferramenta-bottom{
+    align-self: flex-end;
+    margin-top: auto;
+}
+
+.ferramenta:hover{
+    background-color: #444444;
+}
+
+.opcoes{
+    width: 0;
 }

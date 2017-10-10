@@ -2,19 +2,34 @@
     <head>
         <title>Draw!</title>
         <link rel="stylesheet" href="./src/css/styles.css">
+        <link rel="stylesheet" href="./src/css/fonts.css">
     </head>
     <body>
-        <div>
-            <button id="btn-limpar">Limpar</button>
+        <div id="#container" class="flex container">
+            <div id="header" class="header">
+            </div>
+            <div class="flex content">
+                <div id="canvas-div">
+                        <canvas id="drawing-canvas" width='800' height='600'></canvas>
+                </div>
+                <div id="ferramentas-div" class="flex ferramentas">
+                    
+                        <div id="btn-pincel" class="ferramenta icon"><span class="icon-paint-brush"></div>
+                        <div id="btn-borracha" class="ferramenta icon"><span class="icon-erase-text"></span></div>
+                        <div id="btn-bucket" class="ferramenta icon"><span class="icon-bucket"></span></div>
+                        <div id="btn-color-picker" class="ferramenta icon"><span class="icon-pipette"></span></div>
+                        <div id="btn-color" class="ferramenta icon ferramenta-bottom"><div id="color-div"></div></div>
+                        <div id="btn-limpar" class="ferramenta icon"><span class="icon-garbage"></span></div>
+                    
+
+                </div>
+                <div id="opcoes-div" class="flex opcoes">
+                    
+                </div>
+            </div>
         </div>
-        <div>
-            <canvas id="drawing-canvas" width='800' height='600'></canvas>
-        </div>
-        <div>
-            <input type="color" name="" id="color-input"/>
-            <button id="pincel">Pincel</button>
-            <button id="borracha">Borracha</button>
-        </div>
+
+        <input type="color" name="" id="color-input"/>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
         <script src="./src/js/socket.js"></script>
         <script src="./src/js/drawing.js"></script>
