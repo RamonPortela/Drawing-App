@@ -26,8 +26,22 @@ var mouseLocal = {
     previousY: 0,
     currentX: 0,
     currentY: 0,
-    pincel: "pincel"
+    pincel: "pincel",
+    setCursor: function(){
+        switch(this.pincel){
+            case "pincel":
+            case "borracha":
+                canvas.style.cursor = 'url("../../src/img/cursores/'+ line.size + 'px.png' +'")' + line.size /2 + ' ' + line.size/2+',default';
+                console.log('url("../../src/img/cursores/'+ line.size + 'px.png' +'")');
+                break;
+            case "picker":
+                canvas.style.cursor = 'url("../../src/img/cursores/picker.png") 0 16,default';
+                console.log('url("../../src/img/cursores/picker.png") 0 16,default');
+                break;
+        }
+    }
 }
+
 var pathArray = [];
 var mousesOnline = [];
 var inicioClick = 0;
@@ -36,6 +50,8 @@ var line = {
     color: colorInput.value,
     size: 5
 }
+
+mouseLocal.setCursor();
 
 function getCurrentColorRGBA(){
     var c;
@@ -70,7 +86,6 @@ var draw = function(firstClick){
         case "borracha":
             setLine();
             context.beginPath();
-            context.lineWidth = line.size * 5;
             context.globalCompositeOperation="destination-out";
             if(!firstClick){
                 context.moveTo(mouseLocal.previousX, mouseLocal.previousY);
@@ -85,8 +100,8 @@ var draw = function(firstClick){
         case "picker":
             var pixel = context.getImageData(mouseLocal.currentX, mouseLocal.currentY, 1, 1).data;
             line.color = colorDiv.style.backgroundColor = "rgb("+pixel[0]+", "+pixel[1]+", "+pixel[2]+")";            
-            canvas.style.cursor = '';
             mouseLocal.pincel = "pincel";
+            mouseLocal.setCursor();
             break;
     }
 }
@@ -116,6 +131,7 @@ var setLine = function(newSetup){
 btnTamanhos.forEach(function(element, index){
     element.onclick = function(e){
         line.size = (index+1) * 5;
+        mouseLocal.setCursor();
     };
 });
 
@@ -124,23 +140,21 @@ colorInput.onchange = function(e){
     colorDiv.style.backgroundColor = colorInput.value;
 }
 btnLimpar.onclick = function(e){
-    canvas.style.cursor = '';
     socket.emit("clear");
 }
 btnBorracha.onclick = function(e){
-    canvas.style.cursor = '';
     mouseLocal.pincel = "borracha";
+    mouseLocal.setCursor();
 }
 btnPincel.onclick = function(e){
-    canvas.style.cursor = '';
     mouseLocal.pincel = "pincel";
+    mouseLocal.setCursor();
 }
-// btnBucket.onclick = function(e){
-//     mouseLocal.pincel = "bucket";
-// }
+
 btnColorPicker.onclick = function(e){
-    mouseLocal.pincel = "picker";    
-    canvas.style.cursor = 'url("../../src/img/cursor.png") 0 16,default';
+    mouseLocal.pincel = "picker"; 
+    mouseLocal.setCursor();
+    
 }
 
 colorDiv.onclick = function(e){
