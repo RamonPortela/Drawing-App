@@ -65,7 +65,22 @@ body{
 }
 
 .ferramenta{
+    position: relative;
     padding: 15px 10px;
+}
+
+.ferramenta.selected{
+    background-color: #444444;
+}
+
+.ferramenta.selected::after{    
+    position: absolute;
+    content: ' ';
+    border: 8px solid #eeca03;
+    border-left: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    right: 0;
+    top: 0;     
 }
 
 .ferramenta-bottom{
@@ -115,6 +130,10 @@ body{
     margin: auto;
     border-radius: 50%;
     position: relative;
+}
+
+[class*="div-tamanho-"].selected{
+    background-color: #eeca03;
 }
 
 .div-tamanho-5{
