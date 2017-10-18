@@ -176,14 +176,18 @@ canvas.onmousemove = function(e){
         setMouse(e.clientX, e.clientY);
         draw(false);
         pathArray.push({x: mouseLocal.currentX, y: mouseLocal.currentY});
-        if(pathArray.length == 100){
+        if(pathArray.length == 50){
             emitAction();
-            pathArray = pathArray.slice(99);
+            pathArray = pathArray.slice(49);
         }
     }
 }
 
 window.onmouseup = function(e){
+    mouseLocal.click = false;
+}
+
+canvas.onmouseup = function(e){
     mouseLocal.click = false;
     emitAction();
     pathArray = [];
@@ -198,7 +202,7 @@ canvas.onmouseout = function(e){
 
 canvas.onmouseenter = function(e){
     if(mouseLocal.click){
-        var event = new Event('mousedown');
+        var event = new MouseEvent('mousedown', {clientX: e.clientX, clientY: e.clientY});
         canvas.dispatchEvent(event);
     }
 }

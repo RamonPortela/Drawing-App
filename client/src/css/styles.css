@@ -82,6 +82,20 @@ body{
     width: 100px;
 }
 
+.selected{
+    position: relative;
+    background-color: #444444;
+}
+
+.selected:after{
+    content: ' ';
+    border: 10px solid #eeca03;
+    border-bottom-left-radius: 50PX;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
 #opcoes-pincel{
     width: 100%;
 }

@@ -5,6 +5,10 @@ socket.on('draw', function(data){
     if(data.id == socket.id){
         return;
     }
+
+    if(data.path.length < 1){
+        return;
+    }
     else{
 
         setLine(data.lineConfig);
