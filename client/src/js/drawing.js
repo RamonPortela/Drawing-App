@@ -7,11 +7,6 @@ var btnBorracha = document.getElementById("btn-borracha");
 var btnBucket = document.getElementById("btn-bucket");
 var btnColorPicker = document.getElementById("btn-color-picker");
 var colorDiv = document.getElementById("color-div");
-// var btnTamanho5 = document.getElementById("div-tamanho-5");
-// var btnTamanho10 = document.getElementById("div-tamanho-10");
-// var btnTamanho15 = document.getElementById("div-tamanho-15");
-// var btnTamanho20 = document.getElementById("div-tamanho-20");
-// var btnTamanho25 = document.getElementById("div-tamanho-25");
 var btnTamanhos = document.querySelectorAll("[id*='div-tamanho-']");
 
 window.onload = function(e){
@@ -22,6 +17,7 @@ colorDiv.style.backgroundColor = colorInput.value;
 
 var mouseLocal = {
     click: false,
+    out: false,
     previousX: 0,
     previousY: 0,
     currentX: 0,
@@ -32,11 +28,9 @@ var mouseLocal = {
             case "pincel":
             case "borracha":
                 canvas.style.cursor = 'url("../../src/img/cursores/'+ line.size + 'px.png' +'")' + line.size /2 + ' ' + line.size/2+',default';
-                console.log('url("../../src/img/cursores/'+ line.size + 'px.png' +'")');
                 break;
             case "picker":
                 canvas.style.cursor = 'url("../../src/img/cursores/picker.png") 0 16,default';
-                console.log('url("../../src/img/cursores/picker.png") 0 16,default');
                 break;
         }
     }
@@ -189,17 +183,23 @@ canvas.onmousemove = function(e){
     }
 }
 
-canvas.onmouseup = function(e){
+window.onmouseup = function(e){
     mouseLocal.click = false;
     emitAction();
     pathArray = [];
 }
 
 canvas.onmouseout = function(e){
-    mouseLocal.click = false;
     if(pathArray.length > 0){
         emitAction();
         pathArray = [];
+    }
+}
+
+canvas.onmouseenter = function(e){
+    if(mouseLocal.click){
+        var event = new Event('mousedown');
+        canvas.dispatchEvent(event);
     }
 }
 
