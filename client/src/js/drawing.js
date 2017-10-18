@@ -126,6 +126,9 @@ btnTamanhos.forEach(function(element, index){
     element.onclick = function(e){
         line.size = (index+1) * 5;
         mouseLocal.setCursor();
+
+        var target = e.target.id == "" ? e.target : e.target.childNodes[0];
+        setSelection(target, "[class*='div-tamanho-']");
     };
 });
 
@@ -139,16 +142,37 @@ btnLimpar.onclick = function(e){
 btnBorracha.onclick = function(e){
     mouseLocal.pincel = "borracha";
     mouseLocal.setCursor();
+
+    var target = e.target.tagName == "SPAN" ? e.target.parentElement : e.target;
+    setSelection(target, ".ferramenta");    
 }
+
 btnPincel.onclick = function(e){
     mouseLocal.pincel = "pincel";
     mouseLocal.setCursor();
+
+    var target = e.target.tagName == "SPAN" ? e.target.parentElement : e.target;
+    setSelection(target, ".ferramenta");    
 }
 
 btnColorPicker.onclick = function(e){
     mouseLocal.pincel = "picker"; 
     mouseLocal.setCursor();
-    
+
+    var target = e.target.tagName == "SPAN" ? e.target.parentElement : e.target;
+    setSelection(target, ".ferramenta");    
+}
+
+function setSelection(target, classe){
+    removeSelectedClass(classe);
+    target.classList.add("selected");
+}
+
+function removeSelectedClass(classe){
+    var ferramentas = document.querySelectorAll(classe);
+    for(var i = 0; i < ferramentas.length; i++){
+        ferramentas[i].classList.remove("selected");
+    }
 }
 
 colorDiv.onclick = function(e){
