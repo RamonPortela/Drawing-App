@@ -8,12 +8,31 @@ var btnBucket = document.getElementById("btn-bucket");
 var btnColorPicker = document.getElementById("btn-color-picker");
 var colorDiv = document.getElementById("color-div");
 var btnTamanhos = document.querySelectorAll("[id*='div-tamanho-']");
+var divOpcoes = document.getElementById("opcoes-div");
 
 window.onload = function(e){
     colorInput.remove();
 }
 
 colorDiv.style.backgroundColor = colorInput.value;
+
+(
+    function(){
+        var imageData = context.getImageData(0, 0, canvas.width, canvas.height).data;
+
+        var matriz = [];
+
+        var linhaMatriz = [];
+
+        // imageData.reduce(function(anterior, atual, index){
+        //     console.log(anterior);
+        //     console.log(atual);
+            
+        // }, linhaMatriz)     
+
+        console.log(imageData);
+    }
+)();
 
 var mouseLocal = {
     click: false,
@@ -94,8 +113,7 @@ var draw = function(firstClick){
         case "picker":
             var pixel = context.getImageData(mouseLocal.currentX, mouseLocal.currentY, 1, 1).data;
             line.color = colorDiv.style.backgroundColor = "rgb("+pixel[0]+", "+pixel[1]+", "+pixel[2]+")";            
-            mouseLocal.pincel = "pincel";
-            mouseLocal.setCursor();
+            btnPincel.click();
             break;
     }
 }
@@ -144,6 +162,7 @@ btnBorracha.onclick = function(e){
     mouseLocal.setCursor();
 
     var target = e.target.tagName == "SPAN" ? e.target.parentElement : e.target;
+    abrirOpcoes();
     setSelection(target, ".ferramenta");    
 }
 
@@ -152,6 +171,7 @@ btnPincel.onclick = function(e){
     mouseLocal.setCursor();
 
     var target = e.target.tagName == "SPAN" ? e.target.parentElement : e.target;
+    abrirOpcoes();
     setSelection(target, ".ferramenta");    
 }
 
@@ -160,6 +180,7 @@ btnColorPicker.onclick = function(e){
     mouseLocal.setCursor();
 
     var target = e.target.tagName == "SPAN" ? e.target.parentElement : e.target;
+    fecharOpcoes();
     setSelection(target, ".ferramenta");    
 }
 
@@ -173,6 +194,16 @@ function removeSelectedClass(classe){
     for(var i = 0; i < ferramentas.length; i++){
         ferramentas[i].classList.remove("selected");
     }
+}
+
+function abrirOpcoes(){    
+    divOpcoes.firstElementChild.style.display = 'block';
+    divOpcoes.style.width = '100px';
+}
+
+function fecharOpcoes(){
+    divOpcoes.firstElementChild.style.display = 'none';
+    divOpcoes.style.width = 0;
 }
 
 colorDiv.onclick = function(e){
