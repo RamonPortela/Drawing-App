@@ -94,13 +94,17 @@ body{
 
 .opcoes{
     background-color:#363636;
-    width: 100px;
+    width: 100%;
+
     flex-direction: column;
     transition: width 1.3s;
 }
 
 #opcoes-pincel{
     width: 100%;
+    opacity: 1;
+    visibility: visible;
+    transition: visibility 0.5s, opacity 0.7s
 }
 [id*="div-tamanho-"]{
     height: 50px;

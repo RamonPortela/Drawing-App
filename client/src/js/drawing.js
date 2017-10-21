@@ -197,12 +197,14 @@ function removeSelectedClass(classe){
 }
 
 function abrirOpcoes(){    
-    divOpcoes.firstElementChild.style.display = 'block';
+    divOpcoes.firstElementChild.style.opacity = 1;
+    divOpcoes.firstElementChild.style.visibility = 'visible';
     divOpcoes.style.width = '100px';
 }
 
-function fecharOpcoes(){
-    divOpcoes.firstElementChild.style.display = 'none';
+function fecharOpcoes(){    
+    divOpcoes.firstElementChild.style.opacity = 0;
+    divOpcoes.firstElementChild.style.visibility = 'hidden';
     divOpcoes.style.width = 0;
 }
 
