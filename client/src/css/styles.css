@@ -53,6 +53,13 @@ body{
     background-image: url("../../src/img/header.png");
     background-repeat: no-repeat;
     background-size: 350px 175px;
+    position: relative;
+}
+
+.div-undo-redo{
+    position: absolute;
+    right: 0;
+    top: 50%;
 }
 
 .content{
@@ -94,7 +101,7 @@ body{
 
 .opcoes{
     background-color:#363636;
-    width: 100%;
+    width: 100px;
 
     flex-direction: column;
     transition: width 1.3s;

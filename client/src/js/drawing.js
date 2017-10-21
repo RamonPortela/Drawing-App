@@ -9,6 +9,14 @@ var btnColorPicker = document.getElementById("btn-color-picker");
 var colorDiv = document.getElementById("color-div");
 var btnTamanhos = document.querySelectorAll("[id*='div-tamanho-']");
 var divOpcoes = document.getElementById("opcoes-div");
+var btnUndo = document.getElementById("btn-undo");
+var btnRedo = document.getElementById("btn-redo");
+var onlineCounter = document.getElementById("online-counter");
+
+var drawing = {
+    current: null,
+    before: null
+};
 
 window.onload = function(e){
     colorInput.remove();
@@ -24,19 +32,13 @@ colorDiv.style.backgroundColor = colorInput.value;
 
         var linhaMatriz = [];
 
-        // imageData.reduce(function(anterior, atual, index){
-        //     console.log(anterior);
-        //     console.log(atual);
-            
-        // }, linhaMatriz)     
-
         console.log(imageData);
     }
 )();
 
 var mouseLocal = {
     click: false,
-    out: false,
+    newClick: true,
     previousX: 0,
     previousY: 0,
     currentX: 0,
@@ -184,6 +186,14 @@ btnColorPicker.onclick = function(e){
     setSelection(target, ".ferramenta");    
 }
 
+btnUndo.onclick = function(e){
+    Socket.emitUndo();
+}
+
+btnRedo.onclick = function(e){
+    Socket.emitRedo();
+}
+
 function setSelection(target, classe){
     removeSelectedClass(classe);
     target.classList.add("selected");
@@ -214,6 +224,9 @@ colorDiv.onclick = function(e){
 
 canvas.onmousedown = function(e){
     e.preventDefault();
+    if(mouseLocal.newClick){
+        drawing.before = canvas.toDataURL('image/png');
+    }
     if(e.buttons > 1){
         return;
     }
@@ -241,10 +254,23 @@ canvas.onmousemove = function(e){
 }
 
 window.onmouseup = function(e){
-    mouseLocal.click = false;
+    if(e.target == canvas){
+        e.stopPropagation();
+        var event = new MouseEvent('mouseup', {clientX: e.clientX, clientY: e.clientY});
+        canvas.dispatchEvent(event);
+    }
+    else{
+        mouseLocal.click = false;
+        mouseLocal.newClick = true;
+    }
 }
 
 canvas.onmouseup = function(e){
+    e.stopPropagation();
+    console.log('mouse up');
+    mouseLocal.newClick = true;
+    drawing.current = canvas.toDataURL('image/png');
+    Socket.emitAddUndo(drawing);
     mouseLocal.click = false;
     emitAction();
     pathArray = [];
@@ -259,6 +285,7 @@ canvas.onmouseout = function(e){
 
 canvas.onmouseenter = function(e){
     if(mouseLocal.click){
+        mouseLocal.newClick = false;
         var event = new MouseEvent('mousedown', {clientX: e.clientX, clientY: e.clientY});
         canvas.dispatchEvent(event);
     }
@@ -349,18 +376,15 @@ function fill(newColor){
 
 }
 
-function emitAction(){
+function emitAction(){    
     switch(mouseLocal.pincel){
         case "pincel":
-            emitDraw();
+            Socket.emitDraw();
             break;
         case "borracha":
-            emitBorracha();
+            Socket.emitBorracha();
             break;
         case "bucket":
-            //to do
-            break;
-        case "picker":
             //to do
             break;
     }
