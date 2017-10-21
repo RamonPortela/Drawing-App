@@ -99,6 +99,10 @@ var Socket = (
             socket.emit("erase", {path: pathArray, id: socket.id})
         }
 
+        var emitClear = function(){
+            socket.emit('clear');
+        }
+
         var emitUndo = function(){            
             socket.emit("undo")
         }
@@ -114,6 +118,7 @@ var Socket = (
         return {
             emitDraw: emitDraw,
             emitBorracha: emitBorracha,
+            emitClear, emitClear,
             emitUndo: emitUndo,
             emitRedo: emitRedo,
             emitAddUndo: emitAddUndo

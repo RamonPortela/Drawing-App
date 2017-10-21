@@ -157,7 +157,7 @@ colorInput.onchange = function(e){
     colorDiv.style.backgroundColor = colorInput.value;
 }
 btnLimpar.onclick = function(e){
-    socket.emit("clear");
+    Socket.emitClear();
 }
 btnBorracha.onclick = function(e){
     mouseLocal.pincel = "borracha";
