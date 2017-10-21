@@ -7,6 +7,10 @@ var Socket = (
         socket.on('userChanged', function(data){
             onlineCounter.innerText = data;
         });
+
+        socket.on('updateLooking', function(data){
+            visualizandoCounter.innerHTML = data;
+        })
         
         socket.on('draw', function(data){
             context.globalCompositeOperation="source-over";
@@ -91,6 +95,10 @@ var Socket = (
             return true;
         }
         
+        var emitLooking = function(looking){
+            socket.emit("looking", {looking})
+        }
+
         var emitDraw = function(){
             socket.emit("draw", {path: pathArray, id: socket.id, lineConfig: line});
         }
@@ -116,6 +124,7 @@ var Socket = (
         }
 
         return {
+            emitLooking: emitLooking,
             emitDraw: emitDraw,
             emitBorracha: emitBorracha,
             emitClear, emitClear,

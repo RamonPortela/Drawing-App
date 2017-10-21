@@ -11,6 +11,7 @@ var undo = [];
 var redo = [];
 var currentState = null;
 var usuariosOnline = 0;
+var looking = 0;
 
 app.use('/', express.static("client"));
 
@@ -20,13 +21,24 @@ server.listen(server_port, server_ip_address, function(){
 
 io.on('connection', function(socket){
     usuariosOnline++;
-    
+
     io.emit('userChanged', usuariosOnline);
     socket.emit('getCurrentDrawing', {image: currentState});
 
     socket.on('disconnect', function(){
         usuariosOnline--;
+        looking--;
+        io.emit('updateLooking', looking);
         io.emit('userChanged', usuariosOnline);
+    });
+
+    socket.on('looking', function(isLooking){
+        if(isLooking.looking)
+            looking++;
+        else
+            looking--;
+
+        io.emit('updateLooking', looking);
     });
 
     socket.on('draw', function(data){

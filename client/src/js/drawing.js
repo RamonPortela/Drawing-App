@@ -12,6 +12,7 @@ var divOpcoes = document.getElementById("opcoes-div");
 var btnUndo = document.getElementById("btn-undo");
 var btnRedo = document.getElementById("btn-redo");
 var onlineCounter = document.getElementById("online-counter");
+var visualizandoCounter = document.getElementById("visualizando-counter");
 
 var drawing = {
     current: null,
@@ -20,6 +21,21 @@ var drawing = {
 
 window.onload = function(e){
     colorInput.remove();
+
+    if(document.hidden){
+        Socket.emitLooking(false);
+    }
+    else{
+        Socket.emitLooking(true);
+    }
+}
+
+window.onfocus = function(e){
+    Socket.emitLooking(true);
+}
+
+window.onblur = function(e){
+    Socket.emitLooking(false);
 }
 
 colorDiv.style.backgroundColor = colorInput.value;
@@ -267,7 +283,6 @@ window.onmouseup = function(e){
 
 canvas.onmouseup = function(e){
     e.stopPropagation();
-    console.log('mouse up');
     mouseLocal.newClick = true;
     drawing.current = canvas.toDataURL('image/png');
     Socket.emitAddUndo(drawing);
