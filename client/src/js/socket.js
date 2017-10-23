@@ -64,6 +64,14 @@ var Socket = (
             context.stroke();
         });
 
+        socket.on('bucket', function(data){
+            if(data.id == socket.id){
+                return;
+            }
+            data.clickedPixel = context.getImageData(data.position[0], data.position[1], 1, 1).data;
+            floodFill(data.position, data.clickedPixel, data.selectedColor)
+        })
+
         socket.on('getCurrentDrawing', function(data){
             if(!reDraw(data.image))
                 return null;
@@ -104,7 +112,11 @@ var Socket = (
         }
         
         var emitBorracha = function(){
-            socket.emit("erase", {path: pathArray, id: socket.id})
+            socket.emit("erase", {path: pathArray, id: socket.id});
+        }
+
+        var emitBucket = function(data){
+            socket.emit('bucket', { position: data.position, clickedPixel: data.clickedPixel, selectedColor: data.selectedColor });
         }
 
         var emitClear = function(){
@@ -127,6 +139,7 @@ var Socket = (
             emitLooking: emitLooking,
             emitDraw: emitDraw,
             emitBorracha: emitBorracha,
+            emitBucket: emitBucket,
             emitClear, emitClear,
             emitUndo: emitUndo,
             emitRedo: emitRedo,

@@ -49,6 +49,11 @@ io.on('connection', function(socket){
         io.emit('erase', data);
     });
 
+    socket.on('bucket', function(data){
+        data.id = socket.id;
+        io.emit('bucket', data)
+    })
+
     socket.on('clear', function(){
         io.emit('clear');
     });

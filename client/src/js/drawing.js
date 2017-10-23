@@ -40,18 +40,6 @@ window.onblur = function(e){
 
 colorDiv.style.backgroundColor = colorInput.value;
 
-(
-    function(){
-        var imageData = context.getImageData(0, 0, canvas.width, canvas.height).data;
-
-        var matriz = [];
-
-        var linhaMatriz = [];
-
-        console.log(imageData);
-    }
-)();
-
 var mouseLocal = {
     click: false,
     newClick: true,
@@ -74,20 +62,19 @@ var mouseLocal = {
 }
 
 var pathArray = [];
-var mousesOnline = [];
-var inicioClick = 0;
 
 var line = {
-    color: colorInput.value,
-    size: 5
+    size: 5,
+    rgba: getCurrentColorRGBA(colorInput.value),
+    color: null
 }
 
-mouseLocal.setCursor();
+line.color = "RGBA("+ line.rgba.r +", "+line.rgba.g +", "+line.rgba.b+", "+line.rgba.a+")"
 
-function getCurrentColorRGBA(){
+function getCurrentColorRGBA(color){
     var c;
-    if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(line.color)){
-        c= line.color.substring(1).split('');
+    if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(color)){
+        c= color.substring(1).split('');
         if(c.length== 3){
             c= [c[0], c[0], c[1], c[1], c[2], c[2]];
         }
@@ -95,11 +82,15 @@ function getCurrentColorRGBA(){
         return {
             r: (c>>16)&255,
             g: (c>>8)&255,
-            b: c&255
+            b: c&255,
+            a: 255
         }
     }
     throw new Error('Bad Hex');
 }
+
+mouseLocal.setCursor();
+
 
 var draw = function(firstClick){
     
@@ -125,12 +116,21 @@ var draw = function(firstClick){
             context.stroke();
             break;
         case "bucket":
-            console.log("bucket");
-            fill(line.color);
+            context.globalCompositeOperation="source-over";
+            var position = [mouseLocal.currentX, mouseLocal.currentY];
+            var clickedPixel = context.getImageData(mouseLocal.currentX, mouseLocal.currentY, 1, 1).data;
+            var selectedColor = line.rgba;
+            floodFill(position, clickedPixel, selectedColor);
             break;
         case "picker":
             var pixel = context.getImageData(mouseLocal.currentX, mouseLocal.currentY, 1, 1).data;
-            line.color = colorDiv.style.backgroundColor = "rgb("+pixel[0]+", "+pixel[1]+", "+pixel[2]+")";            
+            line.rgba = {
+                r: pixel[0],
+                g: pixel[1],
+                b: pixel[2],
+                a: pixel[3]
+            }
+            line.color = colorDiv.style.backgroundColor = "RGBA("+pixel[0]+", "+pixel[1]+", "+pixel[2]+", 255)";            
             btnPincel.click();
             break;
     }
@@ -169,7 +169,9 @@ btnTamanhos.forEach(function(element, index){
 });
 
 colorInput.onchange = function(e){
-    line.color = colorInput.value;
+    var rgbaColor = getCurrentColorRGBA(colorInput.value);
+    line.rgba = rgbaColor;
+    line.color = "RGBA("+ rgbaColor.r +", "+rgbaColor.g +", "+rgbaColor.b+", "+rgbaColor.a+")";
     colorDiv.style.backgroundColor = colorInput.value;
 }
 btnLimpar.onclick = function(e){
@@ -195,6 +197,15 @@ btnPincel.onclick = function(e){
 
 btnColorPicker.onclick = function(e){
     mouseLocal.pincel = "picker"; 
+    mouseLocal.setCursor();
+
+    var target = e.target.tagName == "SPAN" ? e.target.parentElement : e.target;
+    fecharOpcoes();
+    setSelection(target, ".ferramenta");    
+}
+
+btnBucket.onclick = function(e){
+    mouseLocal.pincel = "bucket";
     mouseLocal.setCursor();
 
     var target = e.target.tagName == "SPAN" ? e.target.parentElement : e.target;
@@ -246,6 +257,9 @@ canvas.onmousedown = function(e){
     if(e.buttons > 1){
         return;
     }
+    if(mouseLocal.pincel == "bucket"){
+        return;
+    }
     setMouse(e.clientX, e.clientY);
     draw(true);
     pathArray.push({x: mouseLocal.currentX, y: mouseLocal.currentY});
@@ -283,12 +297,24 @@ window.onmouseup = function(e){
 
 canvas.onmouseup = function(e){
     e.stopPropagation();
-    mouseLocal.newClick = true;
-    drawing.current = canvas.toDataURL('image/png');
-    Socket.emitAddUndo(drawing);
-    mouseLocal.click = false;
-    emitAction();
-    pathArray = [];
+
+    if(mouseLocal.pincel == "bucket"){
+        setMouse(e.clientX, e.clientY);
+        drawing.before = canvas.toDataURL('image/png');
+        draw();
+        drawing.current = canvas.toDataURL('image/png');
+        Socket.emitAddUndo(drawing);
+        emitAction();
+    }
+    else
+    {       
+        mouseLocal.newClick = true;
+        drawing.current = canvas.toDataURL('image/png');
+        Socket.emitAddUndo(drawing);
+        mouseLocal.click = false;
+        emitAction();
+        pathArray = [];
+    }
 }
 
 canvas.onmouseout = function(e){
@@ -306,89 +332,129 @@ canvas.onmouseenter = function(e){
     }
 }
 
-function fill(newColor){
-    var canvasWidth = canvas.width;
-    var canvasHeight = canvas.height;
-    var imageData = colorLayer = context.getImageData(0,0,canvasWidth,canvasHeight);
+function floodFill(position, clickedPixel, selectedColor){
+    var clickedColor = {
+        r: clickedPixel[0],
+        g: clickedPixel[1],
+        b: clickedPixel[2],
+        a: clickedPixel[3]
+    };
+    if(clickedColor.r == selectedColor.r && clickedColor.g == selectedColor.g && clickedColor.b == selectedColor.b && clickedColor.a == selectedColor.a){
+        return;
+    }
 
+    var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    var data = imageData.data;
+    var tolerance;
 
-    pixelStack = [[mouseLocal.currentX, mouseLocal.currentY]];
-    
-    while(pixelStack.length)
-    {
-      var newPos, x, y, pixelPos, reachLeft, reachRight;
-      newPos = pixelStack.pop();
-      x = newPos[0];
-      y = newPos[1];
-      
-      pixelPos = (y*canvasWidth + x) * 4;
-      while(y-- >= 0 && matchStartColor(pixelPos))
-      {
-        pixelPos -= canvasWidth * 4;
-      }
-      pixelPos += canvasWidth * 4;
-      ++y;
-      reachLeft = false;
-      reachRight = false;
-      while(y++ < canvasHeight-1 && matchStartColor(pixelPos))
-      {
-        colorPixel(pixelPos);
-    
-        if(x > 0)
-        {
-          if(matchStartColor(pixelPos - 4))
-          {
-            if(!reachLeft){
-              pixelStack.push([x - 1, y]);
-              reachLeft = true;
-            }
-          }
-          else if(reachLeft)
-          {
-            reachLeft = false;
-          }
+    var pixelStack = [];
+    pixelStack.push([position[0], position[1]]);
+
+    function verificarCor(position, clickedColor){
+        var positionColor = {
+            r: data[position],
+            g: data[position + 1],
+            b: data[position + 2],
+            a: data[position + 3]
         }
+
+        if(positionColor.r == selectedColor.r && positionColor.g == selectedColor.g && positionColor.b == selectedColor.b && positionColor.a == selectedColor.a){
+            return false;
+        }
+
+        var hsp = Math.sqrt(
+            0.299 * (selectedColor.r * selectedColor.r) +
+            0.587 * (selectedColor.g * selectedColor.g) +
+            0.114 * (selectedColor.b * selectedColor.b)
+        );
+
+        if(hsp>200){
+            tolerance = 20;
+        }
+        else{
+            if(hsp > 85){
+                tolerance = 175
+            }
+            else{
+                tolerance = 250;
+            }
+        }
+
+        if(
+            Math.abs(positionColor.r - clickedColor.r)<=tolerance &&
+            Math.abs(positionColor.g - clickedColor.g)<=tolerance &&
+            Math.abs(positionColor.b - clickedColor.b)<=tolerance &&
+            Math.abs(positionColor.a - clickedColor.a)<=tolerance)
+        return true;
+
+        else
+            return false;
+    }
+
+    function pintarPixel(position){
+        data[position] = selectedColor.r;
+        data[position + 1] = selectedColor.g;
+        data[position + 2] = selectedColor.b;
+        data[position + 3] = selectedColor.a;
+    }
+    while(pixelStack.length){
+        if(pixelStack.length > 100)
+        break;
+        var newPos, x, y, pixelPosition, reachLeft, reachRight;
         
-        if(x < canvasWidth-1)
-        {
-          if(matchStartColor(pixelPos + 4))
-          {
-            if(!reachRight)
-            {
-              pixelStack.push([x + 1, y]);
-              reachRight = true;
-            }
-          }
-          else if(reachRight)
-          {
-            reachRight = false;
-          }
-        }
-                
-        pixelPos += canvasWidth * 4;
-      }
-    }
-    context.putImageData(colorLayer, 0, 0);
-      
-    function matchStartColor(pixelPos)
-    {
-        var rgb = getCurrentColorRGBA();
-      var r = colorLayer.data[pixelPos];	
-      var g = colorLayer.data[pixelPos+1];	
-      var b = colorLayer.data[pixelPos+2];
-    
-      return (r == rgb.r && g == rgb.g && b == rgb.b);
-    }
-    
-    function colorPixel(pixelPos)
-    {
-        var rgb = getCurrentColorRGBA();
-      colorLayer.data[pixelPos] = rgb.r;
-      colorLayer.data[pixelPos+1] = rgb.g;
-      colorLayer.data[pixelPos+2] = rgb.b;
-      colorLayer.data[pixelPos+3] = 255;
-    }
+        newPos = pixelStack.pop();
+        x = newPos[0];
+        y = newPos[1];
 
+        pixelPosition = (y * canvas.width + x) * 4;
+
+        while(y >= 0 && verificarCor(pixelPosition, clickedColor)){
+            pixelPosition -= canvas.width * 4;
+            y--;
+        }
+
+        pixelPosition += canvas.width * 4;
+        y++;
+        reachLeft = false;
+        reachRight = false;
+
+        while(y < canvas.height && verificarCor(pixelPosition, clickedColor)){
+            pintarPixel(pixelPosition);
+
+            if(x > 0){
+                if(verificarCor(pixelPosition - 4, clickedColor)){
+                    if(!reachLeft){
+                        pixelStack.push([x - 1, y])
+                        reachLeft = true;
+                    }
+                }
+                else{
+                    if(reachLeft){
+                        reachLeft = false;
+                    }
+                }
+            }
+
+            if(x < canvas.width - 1){
+                if(verificarCor(pixelPosition + 4, clickedColor)){
+                    if(!reachRight){
+                        pixelStack.push([x + 1, y]);
+                        reachRight = true;
+                    }
+                }
+                else{
+                    if(reachRight){
+                        reachRight = false;
+                    }
+                }
+            }
+
+            pixelPosition += canvas.width * 4;
+            y++;
+
+        }
+    }
+    context.putImageData(imageData, 0, 0);
 }
 
 function emitAction(){    
@@ -400,7 +466,15 @@ function emitAction(){
             Socket.emitBorracha();
             break;
         case "bucket":
-            //to do
+            var position = [mouseLocal.currentX, mouseLocal.currentY];
+            var clickedPixel = context.getImageData(mouseLocal.currentX, mouseLocal.currentY, 1, 1).data;
+            var selectedColor = line.rgba;
+            var data = {
+                position: position,
+                clickedPixel: clickedPixel,
+                selectedColor: selectedColor
+            }
+            Socket.emitBucket(data);
             break;
     }
 }
