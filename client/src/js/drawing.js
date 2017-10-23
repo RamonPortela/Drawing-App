@@ -19,6 +19,9 @@ var drawing = {
     before: null
 };
 
+var tamanhoMaximo = 25;
+var tamanhoMinimo = 5;
+
 window.onload = function(e){
     colorInput.remove();
 
@@ -27,6 +30,49 @@ window.onload = function(e){
     }
     else{
         Socket.emitLooking(true);
+    }
+
+    window.onkeypress = function(e){
+        e.preventDefault();
+        if(e.ctrlKey){
+            switch(e.code){
+                case "KeyZ": 
+                    btnUndo.click();
+                    break;
+                case "KeyY":
+                    btnRedo.click();
+                    break;
+            }
+            return;
+        }
+        switch(e.key){
+            case "b":
+                btnPincel.click();
+                break;
+            case "e":
+                btnBorracha.click();
+                break;
+            case "g":
+                btnBucket.click();
+                break;
+            case "i":
+                btnColorPicker.click();
+                break;
+            case "[":
+                var tamanho = line.size - tamanhoMinimo
+                if(tamanho >= tamanhoMinimo){
+                    var seletor = document.getElementById('div-tamanho-'+tamanho);
+                    seletor.click();
+                }
+                break;
+            case "]":
+                var tamanho = line.size + tamanhoMinimo
+                if(tamanho <= tamanhoMaximo){
+                    var seletor = document.getElementById('div-tamanho-'+tamanho);
+                    seletor.click();
+                }
+                break;
+        }
     }
 }
 
@@ -70,6 +116,10 @@ var line = {
 }
 
 line.color = "RGBA("+ line.rgba.r +", "+line.rgba.g +", "+line.rgba.b+", "+line.rgba.a+")"
+
+function rgbToHex(r, g, b) {
+    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
 
 function getCurrentColorRGBA(color){
     var c;
@@ -130,7 +180,8 @@ var draw = function(firstClick){
                 b: pixel[2],
                 a: pixel[3]
             }
-            line.color = colorDiv.style.backgroundColor = "RGBA("+pixel[0]+", "+pixel[1]+", "+pixel[2]+", 255)";            
+            line.color = colorDiv.style.backgroundColor = "RGBA("+pixel[0]+", "+pixel[1]+", "+pixel[2]+", 255)";          
+            colorInput.value = rgbToHex(pixel[0], pixel[1], pixel[2]);       
             btnPincel.click();
             break;
     }
@@ -307,7 +358,7 @@ canvas.onmouseup = function(e){
         emitAction();
     }
     else
-    {       
+    {
         mouseLocal.newClick = true;
         drawing.current = canvas.toDataURL('image/png');
         Socket.emitAddUndo(drawing);
