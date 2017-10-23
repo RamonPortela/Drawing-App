@@ -40,7 +40,6 @@ function handleCancel(e){
     canvas.dispatchEvent(mouseEvent);
 }
 function handleEnd(e){
-    console.log(e);
     var touch = e.touches[0];
     var mouseEvent = new MouseEvent("mouseup", {
         clientX: lastTouch.clientX,

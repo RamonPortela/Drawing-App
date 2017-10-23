@@ -117,12 +117,9 @@ var draw = function(firstClick){
             break;
         case "bucket":
             context.globalCompositeOperation="source-over";
-            console.log(mouseLocal.currentX, mouseLocal.currentY)
             var position = [mouseLocal.currentX, mouseLocal.currentY];
             var clickedPixel = context.getImageData(mouseLocal.currentX, mouseLocal.currentY, 1, 1).data;
             var selectedColor = line.rgba;
-            console.log('bucket');
-            console.log(position);
             floodFill(position, clickedPixel, selectedColor);
             break;
         case "picker":
@@ -300,11 +297,8 @@ window.onmouseup = function(e){
 
 canvas.onmouseup = function(e){
     e.stopPropagation();
-    console.log('mouseup'); 
-    console.log(e);
 
     if(mouseLocal.pincel == "bucket"){
-        console.log('oi');
         setMouse(e.clientX, e.clientY);
         drawing.before = canvas.toDataURL('image/png');
         draw();
