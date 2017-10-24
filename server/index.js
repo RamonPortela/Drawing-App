@@ -32,6 +32,10 @@ io.on('connection', function(socket){
         io.emit('userChanged', usuariosOnline);
     });
 
+    socket.on('getCurrentDrawing', function(){
+        socket.emit('getCurrentDrawing', {image: currentState});
+    })
+
     socket.on('looking', function(isLooking){
         if(isLooking.looking)
             looking++;

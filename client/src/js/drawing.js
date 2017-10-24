@@ -1,3 +1,4 @@
+var canvasDiv = document.getElementById("canvas-div");
 var canvas = document.getElementById("drawing-canvas");
 var context = canvas.getContext("2d");
 var colorInput = document.getElementById("color-input");
@@ -24,6 +25,15 @@ var tamanhoMinimo = 5;
 
 window.onload = function(e){
     colorInput.remove();
+
+    canvas.width = canvasDiv.offsetWidth;
+    canvas.height = canvasDiv.offsetHeight;
+
+    window.onresize = function(e){
+        canvas.width = canvasDiv.offsetWidth;
+        canvas.height = canvasDiv.offsetHeight;
+        Socket.emitGetCurrentDrawing();
+    }
 
     if(document.hidden){
         Socket.emitLooking(false);
@@ -150,9 +160,9 @@ var draw = function(firstClick){
             context.beginPath();
             context.globalCompositeOperation="source-over";
             if(!firstClick){
-                context.moveTo(mouseLocal.previousX, mouseLocal.previousY);
+                context.moveTo(mouseLocal.previousX * canvas.width, mouseLocal.previousY * canvas.height);
             }
-            context.lineTo(mouseLocal.currentX, mouseLocal.currentY);
+            context.lineTo(mouseLocal.currentX * canvas.width, mouseLocal.currentY * canvas.height);
             context.stroke();
             break;
         case "borracha":
@@ -160,20 +170,20 @@ var draw = function(firstClick){
             context.beginPath();
             context.globalCompositeOperation="destination-out";
             if(!firstClick){
-                context.moveTo(mouseLocal.previousX, mouseLocal.previousY);
+                context.moveTo(mouseLocal.previousX * canvas.width, mouseLocal.previousY * canvas.height);
             }
-            context.lineTo(mouseLocal.currentX, mouseLocal.currentY);
+            context.lineTo(mouseLocal.currentX * canvas.width, mouseLocal.currentY * canvas.height);
             context.stroke();
             break;
         case "bucket":
             context.globalCompositeOperation="source-over";
-            var position = [mouseLocal.currentX, mouseLocal.currentY];
-            var clickedPixel = context.getImageData(mouseLocal.currentX, mouseLocal.currentY, 1, 1).data;
+            var position = [mouseLocal.currentX * canvas.width, mouseLocal.currentY * canvas.height];
+            var clickedPixel = context.getImageData(mouseLocal.currentX * canvas.width, mouseLocal.currentY * canvas.height, 1, 1).data;
             var selectedColor = line.rgba;
             floodFill(position, clickedPixel, selectedColor);
             break;
         case "picker":
-            var pixel = context.getImageData(mouseLocal.currentX, mouseLocal.currentY, 1, 1).data;
+            var pixel = context.getImageData(mouseLocal.currentX * canvas.width, mouseLocal.currentY * canvas.height, 1, 1).data;
             line.rgba = {
                 r: pixel[0],
                 g: pixel[1],
@@ -190,8 +200,9 @@ var draw = function(firstClick){
 var setMouse = function(x, y){
     mouseLocal.previousX = mouseLocal.currentX;
     mouseLocal.previousY = mouseLocal.currentY;
-    mouseLocal.currentX = x - canvas.offsetLeft;
-    mouseLocal.currentY = y - canvas.offsetTop;
+    var BB=canvas.getBoundingClientRect();
+    mouseLocal.currentX = (x - BB.left) / canvas.width;
+    mouseLocal.currentY = (y - BB.top) / canvas.height;
 }
 
 var setLine = function(newSetup){
@@ -384,6 +395,10 @@ canvas.onmouseenter = function(e){
 }
 
 function floodFill(position, clickedPixel, selectedColor){
+
+    position[0] = Math.floor(position[0]);
+    position[1] = Math.floor(position[1]);
+
     var clickedColor = {
         r: clickedPixel[0],
         g: clickedPixel[1],
@@ -400,6 +415,9 @@ function floodFill(position, clickedPixel, selectedColor){
 
     var pixelStack = [];
     pixelStack.push([position[0], position[1]]);
+    console.log(position);
+    console.log(clickedPixel);
+    console.log(pixelStack);
 
     function verificarCor(position, clickedColor){
         var positionColor = {
@@ -517,8 +535,8 @@ function emitAction(){
             Socket.emitBorracha();
             break;
         case "bucket":
-            var position = [mouseLocal.currentX, mouseLocal.currentY];
-            var clickedPixel = context.getImageData(mouseLocal.currentX, mouseLocal.currentY, 1, 1).data;
+            var position = [mouseLocal.currentX * canvas.width, mouseLocal.currentY * canvas.height];
+            var clickedPixel = context.getImageData(mouseLocal.currentX * canvas.width, mouseLocal.currentY * canvas.height, 1, 1).data;
             var selectedColor = line.rgba;
             var data = {
                 position: position,

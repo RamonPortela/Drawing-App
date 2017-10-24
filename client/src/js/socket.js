@@ -27,14 +27,14 @@ var Socket = (
                 context.beginPath();
         
                 if(data.path.length == 1){
-                    context.lineTo(data.path[0].x, data.path[0].y);
+                    context.lineTo(data.path[0].x * canvas.width, data.path[0].y * canvas.height);
                     context.stroke();
                     return;
                 }
         
-                context.moveTo(data.path[0].x, data.path[0].y)
+                context.moveTo(data.path[0].x * canvas.width, data.path[0].y * canvas.height)
                 for(var i = 1; i < data.path.length; i++){
-                    context.lineTo(data.path[i].x, data.path[i].y);
+                    context.lineTo(data.path[i].x * canvas.width, data.path[i].y * canvas.height);
                 }
                 context.stroke();
             }
@@ -52,14 +52,14 @@ var Socket = (
             context.globalCompositeOperation="destination-out";
             context.beginPath();
             if(data.path.length == 1){
-                context.lineTo(data.path[0].x, data.path[0].y);
+                context.lineTo(data.path[0].x * canvas.width, data.path[0].y * canvas.height);
                 context.stroke();
                 return;
             }
         
-            context.moveTo(data.path[0].x, data.path[0].y)
+            context.moveTo(data.path[0].x * canvas.width, data.path[0].y * canvas.height)
             for(var i = 1; i < data.path.length; i++){
-                context.lineTo(data.path[i].x, data.path[i].y);
+                context.lineTo(data.path[i].x * canvas.width, data.path[i].y * canvas.height);
             }
             context.stroke();
         });
@@ -68,6 +68,11 @@ var Socket = (
             if(data.id == socket.id){
                 return;
             }
+            console.log(data);
+            data.position[0] = data.position[0] / data.canvasData[0];
+            data.position[1] = data.position[1] / data.canvasData[1];
+            data.position[0] = data.position[0] * canvas.width
+            data.position[1] = data.position[1] * canvas.height
             data.clickedPixel = context.getImageData(data.position[0], data.position[1], 1, 1).data;
             floodFill(data.position, data.clickedPixel, data.selectedColor)
         })
@@ -116,7 +121,8 @@ var Socket = (
         }
 
         var emitBucket = function(data){
-            socket.emit('bucket', { position: data.position, clickedPixel: data.clickedPixel, selectedColor: data.selectedColor });
+            console.log(data);
+            socket.emit('bucket', { position: data.position, clickedPixel: data.clickedPixel, selectedColor: data.selectedColor, canvasData: [canvas.width, canvas.height] });
         }
 
         var emitClear = function(){
@@ -134,6 +140,10 @@ var Socket = (
         var emitAddUndo = function(image){
             socket.emit("addUndo", {image})
         }
+        
+        var emitGetCurrentDrawing = function(){
+            socket.emit("getCurrentDrawing");
+        }
 
         return {
             emitLooking: emitLooking,
@@ -143,7 +153,8 @@ var Socket = (
             emitClear, emitClear,
             emitUndo: emitUndo,
             emitRedo: emitRedo,
-            emitAddUndo: emitAddUndo
+            emitAddUndo: emitAddUndo,
+            emitGetCurrentDrawing: emitGetCurrentDrawing
         };
 
     }
