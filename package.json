@@ -23,6 +23,7 @@
   "homepage": "https://github.com/RamonPortela/Drawing-App#readme",
   "dependencies": {
     "express": "^4.16.1",
+    "mongoose": "^4.12.4",
     "socket.io": "^2.0.3"
   }
 }

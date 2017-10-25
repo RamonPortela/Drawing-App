@@ -4,9 +4,10 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var fs = require('fs');
 var path = require('path');
+var db = require('./db').MongoDb;
+
 var server_port = process.env.PORT || 8080;
 var server_ip_address = '0.0.0.0' || '127.0.0.1';
-
 var undo = [];
 var redo = [];
 var currentState = null;
@@ -16,8 +17,8 @@ var looking = 0;
 app.use('/', express.static("client"));
 
 server.listen(server_port, server_ip_address, function(){
-    console.log("Listening on " + server_ip_address + ", server_port " + server_port)
-  });
+    db.connect();
+});
 
 io.on('connection', function(socket){
     usuariosOnline++;
