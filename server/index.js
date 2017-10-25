@@ -26,6 +26,8 @@ io.on('connection', function(socket){
     io.emit('userChanged', usuariosOnline);
     socket.emit('getCurrentDrawing', {image: currentState});
 
+    db.getImages(socket);
+
     socket.on('disconnect', function(){
         usuariosOnline--;
         looking--;

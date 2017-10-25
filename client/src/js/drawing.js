@@ -14,11 +14,14 @@ var btnUndo = document.getElementById("btn-undo");
 var btnRedo = document.getElementById("btn-redo");
 var onlineCounter = document.getElementById("online-counter");
 var visualizandoCounter = document.getElementById("visualizando-counter");
+var basesDiv = document.getElementById("bases-div");
 
 var drawing = {
     current: null,
     before: null
 };
+
+var bases = [];
 
 var tamanhoMaximo = 25;
 var tamanhoMinimo = 5;
@@ -545,5 +548,22 @@ function emitAction(){
             }
             Socket.emitBucket(data);
             break;
+    }
+}
+
+function appendImages(){
+    basesDiv.innerHTML = "";
+
+    for(var i = 0; i < bases.length; i++){
+        var baseDividida = bases[i].base64.split(",");
+        var imageData = baseDividida[1];
+        var imageType = baseDividida[0].split(":")[1].split(";")[0];
+
+        var blob = b64toBlob(imageData, imageType);
+        var blobUrl = URL.createObjectURL(blob);
+
+        var div = "<div class='base'><img src='"+bases[i].base64+"' alt='"+bases[i].nome+"' style='width: 100%; heigth: 100%'/></div>";
+
+        basesDiv.innerHTML += div;
     }
 }

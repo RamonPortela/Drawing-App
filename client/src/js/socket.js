@@ -92,6 +92,14 @@ var Socket = (
             return null;
         });
 
+        socket.on('getImages', function(data){
+            data.map(function(image){
+                bases.push(image);
+            });
+
+            appendImages();
+        })
+
         function reDraw(image){
             if(image == null){
                 return;
