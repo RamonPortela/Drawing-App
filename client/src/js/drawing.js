@@ -553,17 +553,25 @@ function emitAction(){
 
 function appendImages(){
     basesDiv.innerHTML = "";
-
+    
     for(var i = 0; i < bases.length; i++){
-        var baseDividida = bases[i].base64.split(",");
-        var imageData = baseDividida[1];
-        var imageType = baseDividida[0].split(":")[1].split(";")[0];
-
-        var blob = b64toBlob(imageData, imageType);
-        var blobUrl = URL.createObjectURL(blob);
-
-        var div = "<div class='base'><img src='"+bases[i].base64+"' alt='"+bases[i].nome+"' style='width: 100%; heigth: 100%'/></div>";
-
+        var div = "<div class='base'><img src='"+bases[i].base64+"' alt='"+bases[i].nome+"' style='width: 100%; height: 100%'/></div>";
         basesDiv.innerHTML += div;
+    }
+
+
+    var basesImg = document.querySelectorAll('.base');
+    for(var i = 0; i < basesImg.length; i++){
+        basesImg[i].onclick = function(){
+            drawing.before = canvas.toDataURL('image/png');
+            context.globalCompositeOperation="source-over";
+            var img = new Image(canvas.width, canvas.height);
+            img.src = this.firstChild.src;
+            img.onload = function(){
+                context.drawImage(img, 0, 0, img.width, img.height);
+                drawing.current = canvas.toDataURL('image/png');
+                Socket.emitAddUndo(drawing);
+            }
+        }
     }
 }
