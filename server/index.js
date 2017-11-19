@@ -6,7 +6,7 @@ var fs = require('fs');
 var path = require('path');
 var db = require('./db').MongoDb;
 
-var server_port = process.env.PORT || 8080;
+var server_port = process.env.PORT || 3030;
 var server_ip_address = '0.0.0.0' || '127.0.0.1';
 var undo = [];
 var redo = [];
