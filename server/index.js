@@ -13,7 +13,7 @@ var currentState = null;
 var usuariosOnline = 0;
 var looking = 0;
 
-app.use('/', express.static("client"));
+app.use('/', express.static("public"));
 
 server.listen(server_port, server_ip_address, function(){
 

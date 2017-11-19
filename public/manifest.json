@@ -1,0 +1,19 @@
+{
+    "name": "Drawing Momo",
+    "short_name": "Drawing Momo",
+    "icons": [
+        {
+            "src": "/src/img/icones/icone_drawing_momo_192x192.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        }
+    ],
+    "start_url": "/index.html",
+    "scope": ".",
+    "orientation": "any",
+    "backgroud_color": "#252525",
+    "theme_color": "#252525",
+    "description": "A real time drawing app",
+    "dir": "ltr",
+    "lang": "pt-BR"
+}
