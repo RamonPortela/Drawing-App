@@ -4,7 +4,6 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var fs = require('fs');
 var path = require('path');
-var db = require('./db').MongoDb;
 
 var server_port = process.env.PORT || 8080;
 var server_ip_address = '0.0.0.0' || '127.0.0.1';
@@ -17,7 +16,7 @@ var looking = 0;
 app.use('/', express.static("client"));
 
 server.listen(server_port, server_ip_address, function(){
-    db.connect();
+
 });
 
 io.on('connection', function(socket){
@@ -25,8 +24,6 @@ io.on('connection', function(socket){
 
     io.emit('userChanged', usuariosOnline);
     socket.emit('getCurrentDrawing', {image: currentState});
-
-    db.getImages(socket);
 
     socket.on('disconnect', function(){
         usuariosOnline--;
