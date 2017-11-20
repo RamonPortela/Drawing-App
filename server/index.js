@@ -51,7 +51,7 @@ io.on('connection', function(socket){
     socket.on('draw', function(data){
         io.emit('draw', data);
         webpush.setVapidDetails('maito:ramon.santos@al.infnet.edu.br', publicKey, privateKey);
-
+        
     });
 
     socket.on('erase', function(data){
