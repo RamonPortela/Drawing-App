@@ -4,6 +4,7 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var fs = require('fs');
 var path = require('path');
+var webpush = require('web-push');
 
 var server_port = process.env.PORT || 8080;
 var server_ip_address = '0.0.0.0' || '127.0.0.1';
@@ -12,6 +13,8 @@ var redo = [];
 var currentState = null;
 var usuariosOnline = 0;
 var looking = 0;
+var privateKey = '9tVaZvPjiw__81N1Np4oRpfc6f18GiPlAXxVNdBJDoM';
+var publicKey = 'BDMGPf7SX0PcuYd_KDk1qEzpU3kE8XEw9_dq0Qwp_XtUB98SNfyHoOxjsTJIW7ItOs25nZTqQcvq6gU9TFCzCQM';
 
 app.use('/', express.static("public"));
 
@@ -47,6 +50,8 @@ io.on('connection', function(socket){
 
     socket.on('draw', function(data){
         io.emit('draw', data);
+        webpush.setVapidDetails('maito:ramon.santos@al.infnet.edu.br', publicKey, privateKey);
+
     });
 
     socket.on('erase', function(data){

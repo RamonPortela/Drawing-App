@@ -153,6 +153,11 @@ var Socket = (
             socket.emit("getCurrentDrawing");
         }
 
+        var emitSubscription = function(newSub){
+            socket.emit("subscription", {sub: newSub});
+        }
+
+
         return {
             emitLooking: emitLooking,
             emitDraw: emitDraw,
@@ -162,7 +167,8 @@ var Socket = (
             emitUndo: emitUndo,
             emitRedo: emitRedo,
             emitAddUndo: emitAddUndo,
-            emitGetCurrentDrawing: emitGetCurrentDrawing
+            emitGetCurrentDrawing: emitGetCurrentDrawing,
+            emitSubscription: emitSubscription
         };
 
     }
