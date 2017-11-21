@@ -154,7 +154,7 @@ var Socket = (
         }
 
         var emitSubscription = function(newSub){
-            socket.emit("subscription", {sub: newSub});
+            socket.emit("subscription", {newSub});
         }
 
 

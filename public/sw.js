@@ -1,6 +1,3 @@
-importScripts('/src/js/idb.js');
-importScripts('/src/js/IndexDBAccess.js');
-
 self.addEventListener('install', function(event){
 
 });

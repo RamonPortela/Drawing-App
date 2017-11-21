@@ -15,6 +15,7 @@ var btnRedo = document.getElementById("btn-redo");
 var onlineCounter = document.getElementById("online-counter");
 var visualizandoCounter = document.getElementById("visualizando-counter");
 var basesDiv = document.getElementById("bases-div");
+var notify
 
 if('serviceWorker' in navigator){
     navigator.serviceWorker.register('/sw.js');
@@ -49,17 +50,17 @@ function configurarSubcription(){
                 applicationServerKey: convertedPublicKey
             });
         }
-    }).then(function(newSub){
-        console.log(newSub);
-        var newSubCopy = {
-            id: Date.now(),
-            endpoint: newSub.endpoint,
-            options: {
-                applicationServerKey: newSub.options.applicationServerKey,
-                userVisibleOnly: newSub.options.userVisibleOnly
-            }
+        else{
+            return null;
         }
-        Socket.emitSubscription(newSubCopy);
+    }).then(function(newSub){
+        if(newSub){
+            var newSubCopyString = JSON.stringify(newSub);
+            var newSubCopy = JSON.parse(newSubCopyString);
+            newSubCopy.idb_id = Date.now();
+            writeData('notification', newSubCopy);
+            Socket.emitSubscription(newSubCopyString);
+        }
     })
 }
 
@@ -212,6 +213,11 @@ mouseLocal.setCursor();
 
 
 var draw = function(firstClick){
+
+    //emit drawing
+    setTimeout(function() {
+        
+    }, 1000 * 60 * 5);
     
     switch(mouseLocal.pincel){
         case "pincel":

@@ -1,7 +1,7 @@
 var dbPromise = idb.open('notificationKey', 1, function(db){
     if(!db.objectStoreNames.contains('notification')){
       db.createObjectStore('notification', {
-        keyPath: 'id'
+        keyPath: 'idb_id'
       })
     }
 });
