@@ -4,6 +4,8 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var fs = require('fs');
 var path = require('path');
+var db = require('./db').MongoDb;
+var webpush = require('web-push');
 
 var server_port = process.env.PORT || 8080;
 var server_ip_address = '0.0.0.0' || '127.0.0.1';
@@ -12,11 +14,23 @@ var redo = [];
 var currentState = null;
 var usuariosOnline = 0;
 var looking = 0;
+var privateKey = '9tVaZvPjiw__81N1Np4oRpfc6f18GiPlAXxVNdBJDoM';
+var publicKey = 'BDMGPf7SX0PcuYd_KDk1qEzpU3kE8XEw9_dq0Qwp_XtUB98SNfyHoOxjsTJIW7ItOs25nZTqQcvq6gU9TFCzCQM';
+var baseUrl;
 
-app.use('/', express.static("client"));
+app.use('/', express.static("public"));
+
+app.get('/api/list_subscriptions', function(req, res){
+    db.getSubscriptions(function(err, subscriptions){
+        if(!err){
+
+        }
+        res.json(subscriptions);
+    });
+})
 
 server.listen(server_port, server_ip_address, function(){
-
+    db.connect();
 });
 
 io.on('connection', function(socket){
@@ -45,8 +59,36 @@ io.on('connection', function(socket){
         io.emit('updateLooking', looking);
     });
 
+    socket.on('subscription', function(data){
+        if(data){
+            var parsedData = JSON.parse(data.newSub);
+            db.subscribe(parsedData);
+        }
+    });
+
     socket.on('draw', function(data){
         io.emit('draw', data);
+        webpush.setVapidDetails('maito:ramon.santos@al.infnet.edu.br', publicKey, privateKey);
+        db.getSubscriptions(function(err, subscriptions){
+            if(err){
+                throw Error("Erro recuperando subscriptions.");
+            }
+            
+            subscriptions.map(function(sub){
+                var pushConfig = {
+                    endpoint: sub.endpoint,
+                    keys: sub.keys
+                };
+
+                webpush.sendNotification(pushConfig, JSON.stringify({
+                    title: 'Drawing-momo',
+                    content: 'Alguém está desenhando'
+                })).catch(function(err){
+                    console.log(err);
+                });
+
+            });
+        });
     });
 
     socket.on('erase', function(data){

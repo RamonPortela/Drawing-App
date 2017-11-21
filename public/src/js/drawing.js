@@ -15,6 +15,63 @@ var btnRedo = document.getElementById("btn-redo");
 var onlineCounter = document.getElementById("online-counter");
 var visualizandoCounter = document.getElementById("visualizando-counter");
 var basesDiv = document.getElementById("bases-div");
+var notify
+
+if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('/sw.js');
+}
+
+function urlBase64ToUint8Array(base64String){
+    var padding = '='.repeat((4 - base64String.length % 4) % 4);
+    var base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+
+    var rawData = window.atob(base64);
+    var outputArray = new Uint8Array(rawData.length);
+
+    for(var i = 0; i < rawData.length; ++i){
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+
+    return outputArray;
+}
+
+function configurarSubcription(){
+    var reg;
+
+    navigator.serviceWorker.ready.then(function(swReg){
+        reg = swReg;
+        return swReg.pushManager.getSubscription();
+    }).then(function(sub){
+        if(sub === null){
+            var publicKey = 'BDMGPf7SX0PcuYd_KDk1qEzpU3kE8XEw9_dq0Qwp_XtUB98SNfyHoOxjsTJIW7ItOs25nZTqQcvq6gU9TFCzCQM';
+            var convertedPublicKey = urlBase64ToUint8Array(publicKey);
+            return reg.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: convertedPublicKey
+            });
+        }
+        else{
+            return null;
+        }
+    }).then(function(newSub){
+        if(newSub){
+            var newSubCopyString = JSON.stringify(newSub);
+            var newSubCopy = JSON.parse(newSubCopyString);
+            newSubCopy.idb_id = Date.now();
+            writeData('notification', newSubCopy);
+            Socket.emitSubscription(newSubCopyString);
+        }
+    })
+}
+
+if('Notification' in window && 'serviceWorker' in navigator){
+    Notification.requestPermission(function(result){
+        if(result === 'granted'){            
+            configurarSubcription();
+        }
+    });
+};
+
 
 var drawing = {
     current: null,
@@ -155,8 +212,7 @@ function getCurrentColorRGBA(color){
 mouseLocal.setCursor();
 
 
-var draw = function(firstClick){
-    
+var draw = function(firstClick){    
     switch(mouseLocal.pincel){
         case "pincel":
             setLine();
