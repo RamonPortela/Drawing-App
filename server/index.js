@@ -81,8 +81,8 @@ io.on('connection', function(socket){
                 };
 
                 webpush.sendNotification(pushConfig, JSON.stringify({
-                    title: 'Teste',
-                    content: 'Enviando push notification do servidor'
+                    title: 'Drawing-momo',
+                    content: 'Alguém está desenhando'
                 })).catch(function(err){
                     console.log(err);
                 });
