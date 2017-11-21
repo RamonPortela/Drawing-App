@@ -71,7 +71,7 @@ io.on('connection', function(socket){
         webpush.setVapidDetails('maito:ramon.santos@al.infnet.edu.br', publicKey, privateKey);
         db.getSubscriptions(function(err, subscriptions){
             if(err){
-                throw Error("Erro recuperando subscriptions.");
+                //throw Error("Erro recuperando subscriptions.");
             }
             
             subscriptions.map(function(sub){
