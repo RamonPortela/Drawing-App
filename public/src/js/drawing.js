@@ -212,13 +212,7 @@ function getCurrentColorRGBA(color){
 mouseLocal.setCursor();
 
 
-var draw = function(firstClick){
-
-    //emit drawing
-    setTimeout(function() {
-        
-    }, 1000 * 60 * 5);
-    
+var draw = function(firstClick){    
     switch(mouseLocal.pincel){
         case "pincel":
             setLine();

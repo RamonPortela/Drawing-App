@@ -68,7 +68,27 @@ io.on('connection', function(socket){
 
     socket.on('draw', function(data){
         io.emit('draw', data);
-        //webpush.setVapidDetails('maito:ramon.santos@al.infnet.edu.br', publicKey, privateKey);
+        webpush.setVapidDetails('maito:ramon.santos@al.infnet.edu.br', publicKey, privateKey);
+        db.getSubscriptions(function(err, subscriptions){
+            if(err){
+                throw Error("Erro recuperando subscriptions.");
+            }
+            
+            subscriptions.map(function(sub){
+                var pushConfig = {
+                    endpoint: sub.endpoint,
+                    keys: sub.keys
+                };
+
+                webpush.sendNotification(pushConfig, JSON.stringify({
+                    title: 'Teste',
+                    content: 'Enviando push notification do servidor'
+                })).catch(function(err){
+                    console.log(err);
+                });
+
+            });
+        });
     });
 
     socket.on('erase', function(data){

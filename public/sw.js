@@ -36,23 +36,42 @@ self.addEventListener('notificationclick', function(event){
     notification.close();
 });
 
+var jaNotificado = false;
+
 self.addEventListener('push', function(event){
     console.log('Push notification received', event);
     var data = {title: 'New!', content: 'Something new happened!', openUrl: '/'}
     if(event.data){
       data = JSON.parse(event.data.text());
-    }
-  
+    }  
     var options = {
       body: data.content,
-      icon: '/src/images/icons/app-icon-96x96.png',
-      badge: '/src/images/icons/app-icon-96x96.png',
+      icon: '/src/img/icones/icone_drawing_momo_192x192.png',
+      badge: '/src/img/icones/icone_drawing_momo_192x192.png',
       data: {
         url: data.openUrl
       }
     }
-  
+
+
     event.waitUntil(
-      self.registration.showNotification(data.title, options)
+      clients.matchAll().then(function(clientList){
+        for (var i = 0; i < clientList.length; i++) {
+          var client = clientList[i];
+            if ('focus' in client) {
+              if(!client.focused && !jaNotificado){
+                jaNotificado = true;
+                setTimeout(function() {
+                  jaNotificado = false;
+                }, 1000 * 60 * 5);
+                event.waitUntil(
+                  self.registration.showNotification(data.title, options)
+                )
+              }
+            }
+        }
+      })
     )
+  
+
 })
