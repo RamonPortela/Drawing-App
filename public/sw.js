@@ -21,9 +21,7 @@ self.addEventListener('notificationclick', function(event){
           var client = clis.find(function(c){
             return c.visibilityState === 'visible';
           });
-  
           if(client !== undefined){
-            client.navigate(notification.data.url);
             client.focus();
           }
           else{
@@ -37,6 +35,7 @@ self.addEventListener('notificationclick', function(event){
 });
 
 var jaNotificado = false;
+var tempoTimeOut = 1000 * 15 * 1;
 
 self.addEventListener('push', function(event){
     console.log('Push notification received', event);
@@ -49,13 +48,13 @@ self.addEventListener('push', function(event){
       icon: '/src/img/icones/icone_drawing_momo_192x192.png',
       badge: '/src/img/icones/icone_drawing_momo_192x192.png',
       data: {
-        url: data.openUrl
+        url: data.data.openUrl
       }
     }
 
-
     event.waitUntil(
       clients.matchAll().then(function(clientList){
+        console.log(clientList);
         for (var i = 0; i < clientList.length; i++) {
           var client = clientList[i];
             if ('focus' in client) {
@@ -63,15 +62,23 @@ self.addEventListener('push', function(event){
                 jaNotificado = true;
                 setTimeout(function() {
                   jaNotificado = false;
-                }, 1000 * 60 * 5);
+                }, tempoTimeOut);
                 event.waitUntil(
                   self.registration.showNotification(data.title, options)
                 )
               }
             }
         }
+        if(clientList.length === 0 && !jaNotificado){
+          jaNotificado = true;
+          setTimeout(function() {
+            jaNotificado = false;
+          }, tempoTimeOut);
+          event.waitUntil(
+            self.registration.showNotification(data.title, options)
+          )
+
+        }
       })
     )
-  
-
 })
