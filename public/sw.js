@@ -35,7 +35,7 @@ self.addEventListener('notificationclick', function(event){
 });
 
 var jaNotificado = false;
-var tempoTimeOut = 1000 * 15 * 1;
+var tempoTimeOut = 1000 * 60 * 3;
 
 self.addEventListener('push', function(event){
     console.log('Push notification received', event);
@@ -81,4 +81,18 @@ self.addEventListener('push', function(event){
         }
       })
     )
+})
+
+self.addEventListener('pushsubscriptionchange', function(registration, newSubscription, oldSubscription){
+  console.log(event);
+  fetch("http://localhost:8080/api/subscribe", {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(newSubscription)
+  }).catch(function(error){
+    console.log(error);
+  })
 })

@@ -20,13 +20,19 @@ var baseUrl;
 
 app.use('/', express.static("public"));
 
-app.get('/api/list_subscriptions', function(req, res){
+app.get('/api/subscription', function(req, res){
     db.getSubscriptions(function(err, subscriptions){
         if(!err){
 
         }
         res.json(subscriptions);
     });
+})
+
+app.post('/api/subscription', function(req, res){
+    var newSub = JSON.parse(req.body);
+    db.subscribe(newSub);
+    response.send(req.body)
 })
 
 server.listen(server_port, server_ip_address, function(){

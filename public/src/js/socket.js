@@ -123,9 +123,6 @@ var Socket = (
         }
 
         var emitDraw = function(){
-            if(!notificar){
-                console.log("não vai enviar");
-            }
             socket.emit("draw", {path: pathArray, id: socket.id, lineConfig: line, notify: notificar});
             if(notificar){
                 notificar = false;
@@ -133,8 +130,7 @@ var Socket = (
             }
             else{
                 var data = Date.now();
-                console.log(data - ultimaNotifacao);
-                if(data - ultimaNotifacao >= 1000*15*1)
+                if(data - ultimaNotifacao >= 1000*60*3)
                     notificar = true;
             }
         }
