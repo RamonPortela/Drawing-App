@@ -1,6 +1,8 @@
 var Socket = (
     function(){
         var socket = io();
+        var notificar = true;
+        var ultimaNotifacao = new Date;
 
         var public = {};
 
@@ -121,7 +123,16 @@ var Socket = (
         }
 
         var emitDraw = function(){
-            socket.emit("draw", {path: pathArray, id: socket.id, lineConfig: line});
+            socket.emit("draw", {path: pathArray, id: socket.id, lineConfig: line, notify: notificar});
+            if(notificar){
+                notificar = false;
+                ultimaNotifacao = Date.now();
+            }
+            else{
+                var data = Date.now();
+                if(data - ultimaNotifacao >= 1000*60*3)
+                    notificar = true;
+            }
         }
         
         var emitBorracha = function(){
