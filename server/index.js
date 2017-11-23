@@ -97,7 +97,6 @@ io.on('connection', function(socket){
                     })).catch(function(err){
                         //console.log(err);
                     });
-
                 });
             });
         }
