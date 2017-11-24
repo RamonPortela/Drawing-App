@@ -1,9 +1,76 @@
-self.addEventListener('install', function(event){
+var CACHE_STATIC_NAME = 'static-v1.1';
+var STATIC_FILES = [
+  '/',
+  '/index.html',
+  '/src/js/drawing.js',
+  '/src/js/idb.js',
+  '/src/js/IndexDBAccess.js',
+  '/src/js/mobile.js',
+  '/src/js/socket.js',
+  '/src/css/fonts/icomoon.eot',
+  '/src/css/fonts/icomoon.svg',
+  '/src/css/fonts/icomoon.ttf',
+  '/src/css/fonts/icomoon.woff',
+  '/src/css/fonts.css',
+  '/src/css/styles.css',
+  'https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js'
+]
 
+
+self.addEventListener('install', function(event){
+	event.waitUntil(
+		caches.open(CACHE_STATIC_NAME)
+		.then(function (cache) {
+			cache.addAll(STATIC_FILES);
+		})
+	)
 });
 
 self.addEventListener('activate', function(event){
+	event.waitUntil(
+		caches.keys()
+		.then(function (keyList) {
+			return Promise.all(keyList.map(function (key) {
+				if (key !== CACHE_STATIC_NAME) {
+					return caches.delete(key);
+				}
+			}));
+		})
+	);
+
+
     return self.clients.claim();
+});
+
+function checkIfStatic(string, array) {
+	var cachePath;
+	if (string.indexOf(self.origin) === 0) // request targets domain where we serve the page from (i.e. NOT a CDN)
+		cachePath = string.substring(self.origin.length); // take the part of the URL AFTER the domain (e.g. after localhost:8080)
+	 else 
+		cachePath = string; // store the full request (for CDNs)	
+
+	return array.indexOf(cachePath) > -1;
+}
+  
+
+self.addEventListener('fetch', function(event){
+	if(checkIfStatic(event.request.url, STATIC_FILES)){
+		event.respondWith(
+			caches.match(event.request)
+		);
+	}
+	else{
+		event.respondWith(
+			caches.match(event.request)
+			.then(function(response){
+				if(response)
+					return response;
+				else{
+					return fetch(event.request)
+				}
+			})
+		);
+	}
 })
 
 self.addEventListener('notificationclick', function(event){
@@ -77,7 +144,6 @@ self.addEventListener('push', function(event){
           event.waitUntil(
             self.registration.showNotification(data.title, options)
           )
-
         }
       })
     )

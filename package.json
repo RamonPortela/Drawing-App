@@ -22,10 +22,15 @@
   },
   "homepage": "https://github.com/RamonPortela/Drawing-App#readme",
   "dependencies": {
+    "eslint-config-airbnb": "^16.1.0",
     "express": "^4.16.1",
     "mongoose": "^4.12.4",
     "request": "^2.83.0",
     "socket.io": "^2.0.3",
     "web-push": "^3.2.4"
+  },
+  "devDependencies": {
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.8.0"
   }
 }

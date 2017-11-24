@@ -18,6 +18,14 @@ var privateKey = '9tVaZvPjiw__81N1Np4oRpfc6f18GiPlAXxVNdBJDoM';
 var publicKey = 'BDMGPf7SX0PcuYd_KDk1qEzpU3kE8XEw9_dq0Qwp_XtUB98SNfyHoOxjsTJIW7ItOs25nZTqQcvq6gU9TFCzCQM';
 var baseUrl;
 
+app.get('*', function(req, res, next){
+    if(!req.secure){
+        if(server_port !== 8080)
+            res.redirect('https://drawing-momo.herokuapp.com' + req.url);            
+    }
+    next();
+})
+
 app.use('/', express.static("public"));
 
 app.get('/api/subscription', function(req, res){
