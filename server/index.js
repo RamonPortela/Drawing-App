@@ -19,7 +19,7 @@ var publicKey = 'BDMGPf7SX0PcuYd_KDk1qEzpU3kE8XEw9_dq0Qwp_XtUB98SNfyHoOxjsTJIW7I
 var baseUrl;
 
 app.get('*', function(req, res, next){
-    if(!req.secure){
+    if(req.headers['x-forwarded-proto'] && req.headers['x-forwarded-proto'] === 'http'){
         if(server_port !== 8080)
             res.redirect('https://drawing-momo.herokuapp.com' + req.url);            
     }
