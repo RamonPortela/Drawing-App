@@ -83,11 +83,10 @@ io.on('connection', function(socket){
     socket.on('draw', function(data){
         io.emit('draw', data);
         webpush.setVapidDetails('maito:ramon.santos@al.infnet.edu.br', publicKey, privateKey);
-        console.log(data.notify);
         if(data.notify){
             db.getSubscriptions(function(err, subscriptions){
                 if(err){
-                    throw Error("Erro recuperando subscriptions.");
+                    //throw Error("Erro recuperando subscriptions.");
                 }
                 
                 subscriptions.map(function(sub){
@@ -103,7 +102,7 @@ io.on('connection', function(socket){
                             openUrl: '/'
                         }
                     })).catch(function(err){
-                        //console.log(err);
+                        console.log(err);
                     });
                 });
             });
