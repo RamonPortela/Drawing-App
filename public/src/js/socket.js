@@ -112,7 +112,8 @@ var Socket = (
             var base_image = new Image();
             base_image.src = image;
             base_image.onload = function(){
-              context.drawImage(base_image, 0, 0, canvas.width, canvas.height);
+                var ratio = window.devicePixelRatio;
+              context.drawImage(base_image, 0, 0, canvas.width / ratio, canvas.height / ratio);
             }
 
             return true;

@@ -1,6 +1,7 @@
 var canvasDiv = document.getElementById("canvas-div");
 var canvas = document.getElementById("drawing-canvas");
 var context = canvas.getContext("2d");
+
 var colorInput = document.getElementById("color-input");
 var btnLimpar = document.getElementById("btn-limpar");
 var btnPincel = document.getElementById("btn-pincel");
@@ -15,11 +16,42 @@ var btnRedo = document.getElementById("btn-redo");
 var onlineCounter = document.getElementById("online-counter");
 var visualizandoCounter = document.getElementById("visualizando-counter");
 var basesDiv = document.getElementById("bases-div");
-var notify
+var notify;
+
+// var c2 = document.getElementById("canvas-2");
+// var ctx = c2.getContext("2d");
 
 if('serviceWorker' in navigator){
     navigator.serviceWorker.register('/sw.js');
 }
+
+(function(){
+    var allElements = document.getElementsByTagName("BODY")[0].children[0];
+    var body = document.getElementsByTagName("BODY")[0];
+    window.addEventListener('DOMContentLoaded', checkOrientation);
+
+    window.addEventListener("orientationchange", checkOrientation);
+    
+    function checkOrientation(){
+        var re = /landscape/ig;    
+        
+        if(re.test(screen.orientation.type)){
+            var div = document.querySelector('#blocking-div');
+            if(div !== null){
+                body.insertBefore(allElements, body.firstChild);
+                div.remove();
+            }
+        }
+        else{
+            allElements.remove();
+            var div = document.createElement('div');
+            div.id = 'blocking-div';
+            div.className = 'blocking-div';
+            div.appendChild(document.createTextNode('Vire o celular para LandScape'));
+            body.insertBefore(div, body.firstChild);
+        }
+    };
+})();
 
 function urlBase64ToUint8Array(base64String){
     var padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -87,11 +119,13 @@ window.onload = function(e){
     colorInput.remove();
 
     canvas.width = canvasDiv.offsetWidth;
-    canvas.height = canvasDiv.offsetHeight;
+    canvasDiv.style.height = (canvasDiv.offsetWidth / 16) * 9;
+    canvas.height = (canvasDiv.offsetWidth / 16) * 9;
 
     window.onresize = function(e){
         canvas.width = canvasDiv.offsetWidth;
-        canvas.height = canvasDiv.offsetHeight;
+        canvasDiv.style.height = (canvasDiv.offsetWidth / 16) * 9;
+        canvas.height = (canvasDiv.offsetWidth / 16) * 9;
         Socket.emitGetCurrentDrawing();
     }
 
@@ -216,6 +250,8 @@ var draw = function(firstClick){
     switch(mouseLocal.pincel){
         case "pincel":
             setLine();
+            console.log(line.size / (canvas.width / canvas.height));
+            context.lineWidth = line.size / (canvas.width / canvas.height);
             context.beginPath();
             context.globalCompositeOperation="source-over";
             if(!firstClick){
@@ -223,6 +259,19 @@ var draw = function(firstClick){
             }
             context.lineTo(mouseLocal.currentX * canvas.width, mouseLocal.currentY * canvas.height);
             context.stroke();
+
+            // ctx.strokeStyle = line.color;
+            // ctx.lineWidth = line.size;
+            // ctx.lineCap = "round";
+            // ctx.lineJoin = "round";
+
+            // ctx.beginPath();
+            // ctx.globalCompositeOperation="source-over";
+            // if(!firstClick){
+            //     ctx.moveTo(mouseLocal.previousX * c2.width, mouseLocal.previousY * c2.height);
+            // }
+            // ctx.lineTo(mouseLocal.currentX * c2.width, mouseLocal.currentY * c2.height);
+            // ctx.stroke();
             break;
         case "borracha":
             setLine();
@@ -357,7 +406,7 @@ function removeSelectedClass(classe){
 function abrirOpcoes(){    
     divOpcoes.firstElementChild.style.opacity = 1;
     divOpcoes.firstElementChild.style.visibility = 'visible';
-    divOpcoes.style.width = '100px';
+    divOpcoes.style.width = 'calc(50% - 5px)';
 }
 
 function fecharOpcoes(){    

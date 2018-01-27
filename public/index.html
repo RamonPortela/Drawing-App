@@ -17,18 +17,24 @@
 
         <meta charset="UTF-8">        
     </head>
+
     <body>
-        <div id="#container" class="flex container">
+        <div id="#container" class="grid container">
             <div id="header" class="header">
-                <div class="div-undo-redo">
-                    <button id="btn-undo">UNDO</button><button id="btn-redo">REDO</button>
+            </div>
+
+            <div class="div-undo-redo">
+                <button id="btn-undo">UNDO</button><button id="btn-redo">REDO</button>
+            </div>    
+
+            <div class="canvas-container">
+                <div id="canvas-div">
+                    <canvas id="drawing-canvas"></canvas>
                 </div>
             </div>
-            <div class="flex content">
-                <div id="canvas-div">
-                        <canvas id="drawing-canvas" width='800' height='600'></canvas>
-                </div>
-                <div id="ferramentas-div" class="flex ferramentas">                    
+
+            <div class="flex">
+                <div id="ferramentas-div" class="ferramentas flex">                    
                     <div id="btn-pincel" class="ferramenta selected icon"><span class="icon-paint-brush"></div>
                     <div id="btn-borracha" class="ferramenta icon"><span class="icon-erase-text"></span></div>
                     <div id="btn-bucket" class="ferramenta icon"><span class="icon-bucket"></span></div>
@@ -36,7 +42,7 @@
                     <div id="btn-color" class="ferramenta icon ferramenta-bottom"><div id="color-div"></div></div>
                     <div id="btn-limpar" class="ferramenta icon"><span class="icon-garbage"></span></div>
                 </div>
-                <div id="opcoes-div" class="flex opcoes">
+                <div id="opcoes-div" class="opcoes flex">
                     <div id="opcoes-pincel">
                         <div id="div-tamanho-5"><div class="div-tamanho-5 selected"></div></div>
                         <div id="div-tamanho-10"><div class="div-tamanho-10"></div></div>
@@ -45,16 +51,23 @@
                         <div id="div-tamanho-25"><div class="div-tamanho-25"></div></div>
                     </div>
                 </div>
+
             </div>
-            <div>
+
+            <div class="online">
                 Online: <span id="online-counter"></span>
             </div>
-            <div>
+            <div class="visualizando">
                 Visualizando: <span id="visualizando-counter"></span>
             </div>
         </div>
 
         <input type="color" name="" id="color-input"/>
+
+        <!-- <div style="background-color: white; width: 1280px; height: 720px;">
+            <canvas  id="canvas-2" width="1280" height="720"></canvas>
+        </div> -->
+
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
         <script src="/src/js/idb.js"></script>
         <script src="/src/js/IndexDBAccess.js"></script>
