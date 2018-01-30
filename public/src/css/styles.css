@@ -8,7 +8,7 @@
 }
 
 html{
-    font-size: 62.5%;    
+    font-size: 50%;    
 }
 
 body{
@@ -33,17 +33,10 @@ body{
     height: 100vh;
     
     grid-template-columns: 100%;
-    grid-template-rows: 80vh 15vh;
+    grid-template-rows: 100vh;
 }
 
 .header{
-    height: 150px;
-    grid-row: 1 / 2;
-    grid-column: 1 / 2;
-    background-image: url("../../src/img/header.png");
-    background-repeat: no-repeat;
-    background-size: 350px 175px;
-    position: relative;
     display: none;
 }
 
@@ -60,7 +53,7 @@ body{
 }
 
 .canvas-container{
-    padding: 15px;
+    padding: 3rem 4rem;
     grid-row: 1 / -1;
     grid-column: 1 / -1;
 }
@@ -103,9 +96,10 @@ body{
 }
 
 .icon{
-    font-size: 30px;
+    font-size: 3rem;
     color: var(--color-golden);
     cursor: pointer;
+    text-align: center;
 }
 
 [class*="icon-"]{
@@ -141,7 +135,9 @@ body{
 }
 
 @media only screen and (min-width: 768px){
-
+    html{
+        font-size: 62.5%;    
+    }
     .container{
         width: 75vw;
         height: 100vh;
@@ -154,6 +150,13 @@ body{
     }
 
     .header{
+        height: 15rem;
+        grid-row: 1 / 2;
+        grid-column: 1 / 2;
+        background-image: url("../../src/img/header.png");
+        background-repeat: no-repeat;
+        background-size: 35rem 17.5rem;
+        position: relative;
         display: block;
         grid-row: 1 / 2;
         grid-column: grid-start / grid-end;
@@ -165,7 +168,7 @@ body{
     }
 
     .canvas-container{
-        padding: 0;
+        padding: 0 !important;
         grid-column: grid-start / col-end 10;
         align-self: center;
         grid-row: 2 / -1;
@@ -213,7 +216,7 @@ body{
     }
 
     .icon{
-        font-size: 35px;
+        font-size: 3rem;
         color: var(--color-golden);
         cursor: pointer;
         width: 40px;
