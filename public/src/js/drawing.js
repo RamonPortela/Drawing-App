@@ -16,10 +16,17 @@ var btnRedo = document.getElementById("btn-redo");
 var onlineCounter = document.getElementById("online-counter");
 var visualizandoCounter = document.getElementById("visualizando-counter");
 var basesDiv = document.getElementById("bases-div");
+var canvasContainer = document.querySelector('.canvas-container');
 var notify;
 
-// var c2 = document.getElementById("canvas-2");
-// var ctx = c2.getContext("2d");
+canvasContainer.style.padding = `${((50/16)*9)}px 50px ${((50/16)*9)}px 50px`
+
+var width;
+var height;
+
+// var c2 = document.createElement('canvas');
+var c2 = document.getElementById('canvas-2');
+var ctx = c2.getContext("2d");
 
 if('serviceWorker' in navigator){
     navigator.serviceWorker.register('/sw.js');
@@ -118,14 +125,18 @@ var tamanhoMinimo = 5;
 window.onload = function(e){
     colorInput.remove();
 
-    canvas.width = canvasDiv.offsetWidth;
-    canvasDiv.style.height = (canvasDiv.offsetWidth / 16) * 9;
-    canvas.height = (canvasDiv.offsetWidth / 16) * 9;
+    width = canvasDiv.clientWidth;
+    height = (width / 16) * 9;
+    canvas.style.width = width;
+    canvasDiv.style.height = height;
+    canvas.style.height = height;
 
     window.onresize = function(e){
-        canvas.width = canvasDiv.offsetWidth;
-        canvasDiv.style.height = (canvasDiv.offsetWidth / 16) * 9;
-        canvas.height = (canvasDiv.offsetWidth / 16) * 9;
+        width = canvasDiv.clientWidth;
+        height = (width / 16) * 9;
+        canvas.style.width = width;
+        canvasDiv.style.height = height;
+        canvas.style.height = height;
         Socket.emitGetCurrentDrawing();
     }
 
@@ -250,48 +261,66 @@ var draw = function(firstClick){
     switch(mouseLocal.pincel){
         case "pincel":
             setLine();
-            console.log(line.size / (canvas.width / canvas.height));
-            context.lineWidth = line.size / (canvas.width / canvas.height);
             context.beginPath();
             context.globalCompositeOperation="source-over";
             if(!firstClick){
-                context.moveTo(mouseLocal.previousX * canvas.width, mouseLocal.previousY * canvas.height);
+                context.moveTo(mouseLocal.previousX, mouseLocal.previousY);
             }
-            context.lineTo(mouseLocal.currentX * canvas.width, mouseLocal.currentY * canvas.height);
+            context.lineTo(mouseLocal.currentX, mouseLocal.currentY);
             context.stroke();
 
-            // ctx.strokeStyle = line.color;
-            // ctx.lineWidth = line.size;
-            // ctx.lineCap = "round";
-            // ctx.lineJoin = "round";
+            ctx.strokeStyle = line.color;
+            ctx.lineWidth = line.size;
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
 
-            // ctx.beginPath();
-            // ctx.globalCompositeOperation="source-over";
-            // if(!firstClick){
-            //     ctx.moveTo(mouseLocal.previousX * c2.width, mouseLocal.previousY * c2.height);
-            // }
-            // ctx.lineTo(mouseLocal.currentX * c2.width, mouseLocal.currentY * c2.height);
-            // ctx.stroke();
+            ctx.beginPath();
+            ctx.globalCompositeOperation="source-over";
+            if(!firstClick){
+                ctx.moveTo(mouseLocal.previousX, mouseLocal.previousY);
+            }
+            ctx.lineTo(mouseLocal.currentX, mouseLocal.currentY);
+            ctx.stroke();
             break;
         case "borracha":
             setLine();
             context.beginPath();
             context.globalCompositeOperation="destination-out";
             if(!firstClick){
-                context.moveTo(mouseLocal.previousX * canvas.width, mouseLocal.previousY * canvas.height);
+                context.moveTo(mouseLocal.previousX, mouseLocal.previousY);
             }
-            context.lineTo(mouseLocal.currentX * canvas.width, mouseLocal.currentY * canvas.height);
+            context.lineTo(mouseLocal.currentX, mouseLocal.currentY);
             context.stroke();
+
+            ctx.strokeStyle = line.color;
+            ctx.lineWidth = line.size;
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+
+            ctx.beginPath();
+            ctx.globalCompositeOperation="destination-out";
+            if(!firstClick){
+                ctx.moveTo(mouseLocal.previousX, mouseLocal.previousY);
+            }
+            ctx.lineTo(mouseLocal.currentX, mouseLocal.currentY);
+            ctx.stroke();
             break;
         case "bucket":
             context.globalCompositeOperation="source-over";
-            var position = [mouseLocal.currentX * canvas.width, mouseLocal.currentY * canvas.height];
-            var clickedPixel = context.getImageData(mouseLocal.currentX * canvas.width, mouseLocal.currentY * canvas.height, 1, 1).data;
+            var position = [mouseLocal.currentX, mouseLocal.currentY];
+            var clickedPixel = context.getImageData(mouseLocal.currentX, mouseLocal.currentY, 1, 1).data;
             var selectedColor = line.rgba;
-            floodFill(position, clickedPixel, selectedColor);
+            floodFill(context, position, clickedPixel, selectedColor);
+
+            ctx.globalCompositeOperation="source-over";
+            var position = [mouseLocal.currentX, mouseLocal.currentY];
+            var clickedPixel = ctx.getImageData(mouseLocal.currentX, mouseLocal.currentY, 1, 1).data;
+            var selectedColor = line.rgba;
+            floodFill(ctx, position, clickedPixel, selectedColor);
+
             break;
         case "picker":
-            var pixel = context.getImageData(mouseLocal.currentX * canvas.width, mouseLocal.currentY * canvas.height, 1, 1).data;
+            var pixel = context.getImageData(mouseLocal.currentX, mouseLocal.currentY, 1, 1).data;
             line.rgba = {
                 r: pixel[0],
                 g: pixel[1],
@@ -309,8 +338,11 @@ var setMouse = function(x, y){
     mouseLocal.previousX = mouseLocal.currentX;
     mouseLocal.previousY = mouseLocal.currentY;
     var BB=canvas.getBoundingClientRect();
-    mouseLocal.currentX = (x - BB.left) / canvas.width;
-    mouseLocal.currentY = (y - BB.top) / canvas.height;
+    var scaleX = canvas.width / BB.width;
+    var scaleY = canvas.height / BB.height;
+
+    mouseLocal.currentX = (x - BB.left) * scaleX;
+    mouseLocal.currentY = (y - BB.top) * scaleY;
 }
 
 var setLine = function(newSetup){
@@ -319,18 +351,26 @@ var setLine = function(newSetup){
         context.lineWidth = line.size;
         context.lineCap = "round";
         context.lineJoin = "round";
+        ctx.strokeStyle = line.color;
+        ctx.lineWidth = line.size;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
     }
     else{
         context.strokeStyle = newSetup.color;
         context.lineWidth = newSetup.size;
         context.lineCap = "round";
         context.lineJoin = "round";
+        ctx.strokeStyle = newSetup.color;
+        ctx.lineWidth = newSetup.size;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
     }
 }
 
 btnTamanhos.forEach(function(element, index){
     element.onclick = function(e){
-        line.size = (index+1) * 5;
+        line.size = (index+2) * 5;
         mouseLocal.setCursor();
 
         var target = e.target.id == "" ? e.target : e.target.childNodes[0];
@@ -422,7 +462,8 @@ colorDiv.onclick = function(e){
 canvas.onmousedown = function(e){
     e.preventDefault();
     if(mouseLocal.newClick){
-        drawing.before = canvas.toDataURL('image/png');
+        //drawing.before = canvas.toDataURL('image/png');
+        drawing.before = c2.toDataURL('image/png');
     }
     if(e.buttons > 1){
         return;
@@ -470,16 +511,19 @@ canvas.onmouseup = function(e){
 
     if(mouseLocal.pincel == "bucket"){
         setMouse(e.clientX, e.clientY);
-        drawing.before = canvas.toDataURL('image/png');
+        //drawing.before = canvas.toDataURL('image/png');
+        drawing.before = c2.toDataURL('image/png');
         draw();
-        drawing.current = canvas.toDataURL('image/png');
+        //drawing.current = canvas.toDataURL('image/png');
+        drawing.current = c2.toDataURL('image/png');
         Socket.emitAddUndo(drawing);
         emitAction();
     }
     else
     {
         mouseLocal.newClick = true;
-        drawing.current = canvas.toDataURL('image/png');
+        // drawing.current = canvas.toDataURL('image/png');
+        drawing.current = c2.toDataURL('image/png');
         Socket.emitAddUndo(drawing);
         mouseLocal.click = false;
         emitAction();
@@ -502,7 +546,7 @@ canvas.onmouseenter = function(e){
     }
 }
 
-function floodFill(position, clickedPixel, selectedColor){
+function floodFill(c, position, clickedPixel, selectedColor){
 
     position[0] = Math.floor(position[0]);
     position[1] = Math.floor(position[1]);
@@ -517,7 +561,7 @@ function floodFill(position, clickedPixel, selectedColor){
         return;
     }
 
-    var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    var imageData = c.getImageData(0, 0, canvas.width, canvas.height);
     var data = imageData.data;
     var tolerance;
 
@@ -631,7 +675,7 @@ function floodFill(position, clickedPixel, selectedColor){
 
         }
     }
-    context.putImageData(imageData, 0, 0);
+    c.putImageData(imageData, 0, 0);
 }
 
 function emitAction(){    
@@ -643,8 +687,8 @@ function emitAction(){
             Socket.emitBorracha();
             break;
         case "bucket":
-            var position = [mouseLocal.currentX * canvas.width, mouseLocal.currentY * canvas.height];
-            var clickedPixel = context.getImageData(mouseLocal.currentX * canvas.width, mouseLocal.currentY * canvas.height, 1, 1).data;
+            var position = [mouseLocal.currentX, mouseLocal.currentY];
+            var clickedPixel = context.getImageData(mouseLocal.currentX, mouseLocal.currentY, 1, 1).data;
             var selectedColor = line.rgba;
             var data = {
                 position: position,

@@ -82,32 +82,32 @@ io.on('connection', function(socket){
 
     socket.on('draw', function(data){
         io.emit('draw', data);
-        webpush.setVapidDetails('maito:ramon.santos@al.infnet.edu.br', publicKey, privateKey);
-        console.log(data.notify);
-        if(data.notify){
-            db.getSubscriptions(function(err, subscriptions){
-                if(err){
-                    throw Error("Erro recuperando subscriptions.");
-                }
+        // webpush.setVapidDetails('maito:ramon.santos@al.infnet.edu.br', publicKey, privateKey);
+        // console.log(data.notify);
+        // if(data.notify){
+        //     db.getSubscriptions(function(err, subscriptions){
+        //         if(err){
+        //             throw Error("Erro recuperando subscriptions.");
+        //         }
                 
-                subscriptions.map(function(sub){
-                    var pushConfig = {
-                        endpoint: sub.endpoint,
-                        keys: sub.keys
-                    };
+        //         subscriptions.map(function(sub){
+        //             var pushConfig = {
+        //                 endpoint: sub.endpoint,
+        //                 keys: sub.keys
+        //             };
 
-                    webpush.sendNotification(pushConfig, JSON.stringify({
-                        title: 'Drawing-momo',
-                        content: 'Alguém está desenhando',
-                        data:{
-                            openUrl: '/'
-                        }
-                    })).catch(function(err){
-                        //console.log(err);
-                    });
-                });
-            });
-        }
+        //             webpush.sendNotification(pushConfig, JSON.stringify({
+        //                 title: 'Drawing-momo',
+        //                 content: 'Alguém está desenhando',
+        //                 data:{
+        //                     openUrl: '/'
+        //                 }
+        //             })).catch(function(err){
+        //                 //console.log(err);
+        //             });
+        //         });
+        //     });
+        // }
     });
 
     socket.on('erase', function(data){

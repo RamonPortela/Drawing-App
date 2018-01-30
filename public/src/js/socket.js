@@ -29,21 +29,39 @@ var Socket = (
                 context.beginPath();
         
                 if(data.path.length == 1){
-                    context.lineTo(data.path[0].x * canvas.width, data.path[0].y * canvas.height);
+                    context.lineTo(data.path[0].x, data.path[0].y);
                     context.stroke();
                     return;
                 }
         
-                context.moveTo(data.path[0].x * canvas.width, data.path[0].y * canvas.height)
+                context.moveTo(data.path[0].x, data.path[0].y)
                 for(var i = 1; i < data.path.length; i++){
-                    context.lineTo(data.path[i].x * canvas.width, data.path[i].y * canvas.height);
+                    context.lineTo(data.path[i].x, data.path[i].y);
                 }
                 context.stroke();
+        
+                setLine(data.lineConfig);
+                ctx.beginPath();
+        
+                if(data.path.length == 1){
+                    ctx.lineTo(data.path[0].x, data.path[0].y);
+                    ctx.stroke();
+                    return;
+                }
+        
+                ctx.moveTo(data.path[0].x, data.path[0].y)
+                for(var i = 1; i < data.path.length; i++){
+                    ctx.lineTo(data.path[i].x, data.path[i].y);
+                }
+                ctx.stroke();
             }
         });
             
         socket.on('clear', function(){
             context.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, c2.width, c2.height);
+            drawing.current = c2.toDataURL('image/png');
+            emitAddUndo(drawing);
         });
         
         socket.on('erase', function(data){
@@ -54,16 +72,31 @@ var Socket = (
             context.globalCompositeOperation="destination-out";
             context.beginPath();
             if(data.path.length == 1){
-                context.lineTo(data.path[0].x * canvas.width, data.path[0].y * canvas.height);
+                context.lineTo(data.path[0].x, data.path[0].y);
                 context.stroke();
                 return;
             }
         
-            context.moveTo(data.path[0].x * canvas.width, data.path[0].y * canvas.height)
+            context.moveTo(data.path[0].x, data.path[0].y)
             for(var i = 1; i < data.path.length; i++){
-                context.lineTo(data.path[i].x * canvas.width, data.path[i].y * canvas.height);
+                context.lineTo(data.path[i].x, data.path[i].y);
             }
             context.stroke();
+
+            ctx.lineWidth = line.size * 5;
+            ctx.globalCompositeOperation="destination-out";
+            ctx.beginPath();
+            if(data.path.length == 1){
+                ctx.lineTo(data.path[0].x, data.path[0].y);
+                ctx.stroke();
+                return;
+            }
+        
+            ctx.moveTo(data.path[0].x, data.path[0].y)
+            for(var i = 1; i < data.path.length; i++){
+                ctx.lineTo(data.path[i].x, data.path[i].y);
+            }
+            ctx.stroke();
         });
 
         socket.on('bucket', function(data){
@@ -76,7 +109,10 @@ var Socket = (
             data.position[0] = data.position[0] * canvas.width
             data.position[1] = data.position[1] * canvas.height
             data.clickedPixel = context.getImageData(data.position[0], data.position[1], 1, 1).data;
-            floodFill(data.position, data.clickedPixel, data.selectedColor)
+            floodFill(context, data.position, data.clickedPixel, data.selectedColor);
+
+            data.clickedPixel = ctx.getImageData(data.position[0], data.position[1], 1, 1).data;
+            floodFill(ctx, data.position, data.clickedPixel, data.selectedColor);
         })
 
         socket.on('getCurrentDrawing', function(data){
@@ -108,12 +144,25 @@ var Socket = (
             }
 
             context.globalCompositeOperation="source-over";
+            ctx.globalCompositeOperation="source-over";
             context.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             var base_image = new Image();
             base_image.src = image;
             base_image.onload = function(){
-                var ratio = window.devicePixelRatio;
-              context.drawImage(base_image, 0, 0, canvas.width / ratio, canvas.height / ratio);
+                // var ratio = window.devicePixelRatio;
+
+                // canvas.width = width * ratio;
+                // canvas.height = height * ratio;
+
+                // canvas.style.width = width + 'px';
+                // canvas.style.height = height + 'px';
+
+                // context.save();
+                // context.scale(ratio, ratio);
+                context.drawImage(base_image, 0, 0, canvas.width, canvas.height);
+                ctx.drawImage(base_image, 0, 0, canvas.width, canvas.height);
+                // context.restore();
             }
 
             return true;
