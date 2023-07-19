@@ -3,7 +3,7 @@ var Image = require('./Entities/imagem');
 var Subscription = require('./Entities/subscription');
 
 var MongoDb = (function(){
-    mongoose.connect(process.env.MONGODB_URI);
+    // mongoose.connect(process.env.MONGODB_URI);
     var mongo = {};
 
     var page = 1;

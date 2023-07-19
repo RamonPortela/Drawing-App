@@ -4,7 +4,7 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var fs = require('fs');
 var path = require('path');
-var db = require('./db').MongoDb;
+// var db = require('./db').MongoDb;
 var webpush = require('web-push');
 
 var server_port = process.env.PORT || 8080;
@@ -29,22 +29,22 @@ app.get('*', function(req, res, next){
 app.use('/', express.static("public"));
 
 app.get('/api/subscription', function(req, res){
-    db.getSubscriptions(function(err, subscriptions){
-        if(!err){
-
-        }
-        res.json(subscriptions);
-    });
+    // db.getSubscriptions(function(err, subscriptions){
+    //     if(!err){
+    //
+    //     }
+    //     res.json(subscriptions);
+    // });
 })
 
 app.post('/api/subscription', function(req, res){
     var newSub = JSON.parse(req.body);
-    db.subscribe(newSub);
+    // db.subscribe(newSub);
     response.send(req.body)
 })
 
 server.listen(server_port, server_ip_address, function(){
-    db.connect();
+    // db.connect();
 });
 
 io.on('connection', function(socket){
@@ -76,7 +76,7 @@ io.on('connection', function(socket){
     socket.on('subscription', function(data){
         if(data){
             var parsedData = JSON.parse(data.newSub);
-            db.subscribe(parsedData);
+            // db.subscribe(parsedData);
         }
     });
 
